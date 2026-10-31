@@ -12,6 +12,7 @@ A small, fast lyric-writing app that runs entirely in the browser.
 - Click a result to copy it.
 - Your draft is saved automatically in your browser; “Save .txt” downloads it.
 
+- **Thesaurus** — synonyms for a word, grouped by meaning, plus a wider list of related words. Double-click a word in your lyrics while the tab is open (or press **Alt+T**) to look it up, then click a synonym to swap it in (capitalisation is kept; Ctrl/Cmd+Z undoes). Fill in **Must rhyme with** to see only synonyms that rhyme (perfect and/or near) with another word; this also searches synonyms-of-synonyms, shown separately as “further afield”. Small numbers show each word's syllable count.
 - **Suggest lines** (optional, uses AI with your own API key) — pick a line in the editor, give a topic or feel, and ask for alternatives to that line or options for the next one. You can require a matching syllable count and a rhyme. **Fast mode** (on by default) tells the model to think less before answering, which is much quicker. Each suggestion shows its syllable count (checked locally); “Replace line” / “Insert below” drop it into the song, and Ctrl/Cmd+Z undoes.
 
 Everything except line suggestions runs offline in the browser, with no server and no API keys.
@@ -49,10 +50,12 @@ then open http://localhost:8000. (Opening `index.html` straight from disk won't 
 
 `data/dict.txt` is built from the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (~126k words with phonetic spellings), ordered by how common each word is in film/TV subtitles ([FrequencyWords](https://github.com/hermitdave/FrequencyWords)). Entries missing from the [SCOWL](http://wordlist.aspell.net/) English word list (mostly names) are flagged so they still count syllables but never show up as rhymes. `tools/build_dict.py` rebuilds it.
 
+`data/thesaurus.txt` combines [WordNet 3.1](https://wordnet.princeton.edu/) (synonyms grouped by meaning, with short definitions) and [Moby Thesaurus II](https://en.wikipedia.org/wiki/Moby_Project) (a much larger pool of related words, ranked by how many related words they share with the looked-up word). It's only downloaded the first time the Thesaurus tab is opened. `tools/build_thesaurus.py` rebuilds it.
+
 - Syllables = number of vowel sounds in the word's pronunciation.
 - A word's *rhyme* is its sounds from the last stressed vowel to the end. Perfect rhymes share it exactly.
 - Near rhymes are scored by a weighted sound distance: similar vowels (*IH/IY*) and similar consonants (*M/N*, *D/T*) cost less than unrelated ones. The logic lives in `js/phonetics.js`.
 
 ## Credits
 
-Pronunciations: CMU Pronouncing Dictionary (BSD-style license). Word frequencies: hermitdave/FrequencyWords (CC BY-SA 4.0). Word list: SCOWL (permissive license). Anthropic TypeScript SDK (MIT).
+Pronunciations: CMU Pronouncing Dictionary (BSD-style license). Word frequencies: hermitdave/FrequencyWords (CC BY-SA 4.0). Word list: SCOWL (permissive license). Anthropic TypeScript SDK (MIT). Synonyms: WordNet 3.1 (Princeton WordNet license, permissive) and Moby Thesaurus II (public domain).

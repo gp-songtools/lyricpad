@@ -38,6 +38,7 @@
     <section class="panel side-panel" aria-label="Rhymes and suggestions">
       <div class="tabs" role="tablist">
         <button type="button" role="tab" id="tabRhymes" aria-selected="true" aria-controls="paneRhymes">Rhymes</button>
+        <button type="button" role="tab" id="tabThes" aria-selected="false" aria-controls="paneThes">Thesaurus</button>
         <button type="button" role="tab" id="tabSuggest" aria-selected="false" aria-controls="paneSuggest">Suggest lines</button>
       </div>
       <div class="pane" id="paneRhymes" role="tabpanel" aria-labelledby="tabRhymes">
@@ -67,6 +68,25 @@
         </dl>
         <p class="hint">Click a result to copy it.</p>
       </div>
+      </div>
+
+      <div class="pane" id="paneThes" role="tabpanel" aria-labelledby="tabThes" hidden>
+        <form class="search" id="thesForm">
+          <input id="thesQuery" type="search" placeholder="Find synonyms for…" autocomplete="off" spellcheck="false" aria-label="Word to find synonyms for">
+          <button type="submit">Search</button>
+        </form>
+        <div class="options">
+          <label class="rhyme-with"><span>Must rhyme with</span>
+            <input id="thesRhyme" type="search" placeholder="optional, e.g. night" autocomplete="off" spellcheck="false">
+          </label>
+          <label class="chip"><input type="checkbox" id="thesPerfect" checked> Perfect</label>
+          <label class="chip"><input type="checkbox" id="thesNear" checked> Near</label>
+          <button type="button" id="thesUseSelection" class="ghost" title="Look up the word under the cursor in your lyrics (Alt+T)">Use selected word</button>
+        </div>
+        <div class="results" id="thesOut">
+          <p class="hint">Double-click a word in your lyrics while this tab is open (or press Alt+T) to see its synonyms, grouped by meaning. Clicking a synonym swaps it into your lyrics.</p>
+          <p class="hint">Fill in <b>Must rhyme with</b> to see only synonyms that rhyme with another word — handy for finding a word that means the right thing <i>and</i> lands the rhyme.</p>
+        </div>
       </div>
 
       <div class="pane" id="paneSuggest" role="tabpanel" aria-labelledby="tabSuggest" hidden>

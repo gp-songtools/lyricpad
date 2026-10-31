@@ -22,6 +22,9 @@ const VOWEL_GROUPS = [
 
 const LIGHT_WORDS = new Set("me you him her it them us up in on out a the to of and so too now down".split(" "));
 
+// How far apart two rhyme tails may be (weighted sound distance) and still count as a near rhyme.
+const NEAR_LIMIT = 1.05;
+
 const strip = (p) => p.replace(/\d/g, "");
 const isVowel = (p) => VOWELS.has(strip(p));
 
@@ -214,6 +217,24 @@ export class Lexicon {
     return null;
   }
 
+  // How a word or phrase rhymes with a target: "perfect", "near" or null.
+  // Phrases rhyme on their last word.
+  rhymeKind(target, term) {
+    const last = term.trim().split(/[\s-]+/).pop();
+    const e = this.lookup(last);
+    if (!e) return null;
+    if (e.word === target.self) return null;
+    const keys = new Set(target.prons.map((p) => p.key).filter(Boolean));
+    if (e.prons.some((p) => keys.has(p.key))) return "perfect";
+    for (const p of e.prons) {
+      for (const t of target.prons) {
+        if (!p.tail.length || !t.tail.length || Math.abs(p.tail.length - t.tail.length) > 2) continue;
+        if (tailDistance(t.tail, p.tail, NEAR_LIMIT) <= NEAR_LIMIT) return "near";
+      }
+    }
+    return null;
+  }
+
   // Returns {perfect: [...], near: [...], assonance: [...]}, each item {entry, syllables, score}
   rhymes(target, { perfect = true, near = true, assonance = false, rare = false } = {}) {
     const out = { perfect: [], near: [], assonance: [] };
@@ -233,7 +254,6 @@ export class Lexicon {
     if (!near && !assonance) return out;
 
     const tails = target.prons.filter((p) => p.tail.length);
-    const NEAR_LIMIT = 1.05;
     for (const e of this.entries) {
       if (!ok(e)) continue;
       let best = Infinity, vowelMatch = false;

@@ -1,5 +1,6 @@
 import { Lexicon, guessSyllables } from "./phonetics.js";
 import { initSuggest } from "./suggest.js";
+import { initThesaurus } from "./thesaurus.js";
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -138,11 +139,38 @@ function rhymeFromEditor() {
   els.query.value = w.replace(/^[^a-z']+|[^a-z']+$/gi, "");
   search();
 }
-els.lyrics.addEventListener("dblclick", () => setTimeout(rhymeFromEditor, 0));
+// Double-click a word: thesaurus lookup when that tab is open, otherwise rhymes.
+els.lyrics.addEventListener("dblclick", () => setTimeout(() => {
+  if (!$("paneThes").hidden) thesaurus.lookupFromEditor();
+  else rhymeFromEditor();
+}, 0));
 els.rhymeHere.addEventListener("click", () => { rhymeFromEditor(); els.lyrics.focus(); });
 document.addEventListener("keydown", (e) => {
   if (e.altKey && e.code === "KeyR") { e.preventDefault(); rhymeFromEditor(); }
+  if (e.altKey && e.code === "KeyT") { e.preventDefault(); showTab($("tabThes")); thesaurus.lookupFromEditor(); }
 });
+
+// The single word that is selected or under the cursor, with its position: {word, start, end}.
+function wordAtCursor() {
+  const t = els.lyrics, v = t.value;
+  let start = t.selectionStart, end = t.selectionEnd;
+  if (start === end) {
+    start -= v.slice(0, start).match(/[a-z'’]*$/i)[0].length;
+    end += v.slice(end).match(/^[a-z'’]*/i)[0].length;
+  } else {
+    // Trim the selection to the first word in it.
+    const sel = v.slice(start, end);
+    const m = sel.match(/[a-z'’]+/i);
+    if (!m) return null;
+    start += m.index;
+    end = start + m[0].length;
+  }
+  // Leading/trailing apostrophes are usually quotes, not part of the word.
+  while (start < end && /['’]/.test(v[start])) start++;
+  while (end > start && /['’]/.test(v[end - 1]) && !/in['’]$/i.test(v.slice(start, end))) end--;
+  const word = v.slice(start, end);
+  return /[a-z]/i.test(word) ? { word, start, end } : null;
+}
 
 function songText() {
   return (els.title.value.trim() ? els.title.value.trim() + "\n\n" : "") + els.lyrics.value;
@@ -294,7 +322,7 @@ for (const el of [els.perfect, els.near, els.assonance, els.rare, els.syl]) {
 }
 
 // ---------- tabs ----------
-const tabs = [[$("tabRhymes"), $("paneRhymes")], [$("tabSuggest"), $("paneSuggest")]];
+const tabs = [[$("tabRhymes"), $("paneRhymes")], [$("tabThes"), $("paneThes")], [$("tabSuggest"), $("paneSuggest")]];
 function showTab(btn) {
   for (const [b, pane] of tabs) {
     b.setAttribute("aria-selected", String(b === btn));
@@ -302,8 +330,13 @@ function showTab(btn) {
   }
   store.set("tab", btn.id);
   if (btn.id === "tabSuggest") suggest.refreshTarget();
+  if (btn.id === "tabThes") thesaurus.preload();
 }
-for (const [b] of tabs) b.addEventListener("click", () => showTab(b));
+for (const [b] of tabs) b.addEventListener("click", () => {
+  showTab(b);
+  // Opening the thesaurus with a word selected in the lyrics looks that word up.
+  if (b.id === "tabThes" && els.lyrics.selectionEnd > els.lyrics.selectionStart) thesaurus.lookupFromEditor();
+});
 // Looking up rhymes always brings the Rhymes tab forward.
 const _search = search;
 search = function () { if ($("paneRhymes").hidden) showTab($("tabRhymes")); _search(); };
@@ -336,6 +369,19 @@ const suggest = initSuggest({
     const { end } = lineBounds(index);
     replaceRange(end, end, "\n" + text);
     toast(`Added line ${index + 2}`);
+  },
+  copy,
+  toast,
+});
+const thesaurus = initThesaurus({
+  lexicon: () => lexicon,
+  lineSyllables,
+  wordAtCursor,
+  swapWord({ start, end, word }, replacement) {
+    if (els.lyrics.value.slice(start, end) !== word) return false; // the lyrics changed since the lookup
+    replaceRange(start, end, replacement);
+    toast(`Swapped in “${replacement}”`);
+    return true;
   },
   copy,
   toast,

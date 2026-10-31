@@ -8,6 +8,7 @@ const CLAUDE_MODELS = [
   { id: "claude-haiku-5-5", label: "Claude Haiku 5.5 — fastest & cheapest (~0.05¢)" },
 ];
 const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta";
+const GEMINI_DEFAULT = "gemini-3.6-flash";
 const SDK_URL = new URL("../vendor/anthropic-sdk-1.3.0.js", import.meta.url).href;
 
 const SYSTEM_PROMPT = `You are a lyric-writing collaborator helping a songwriter. You suggest lines they might use, in the voice, tone and point of view of the song so far.
@@ -31,6 +32,8 @@ const settings = {
   set provider(v) { writeStore("localStorage", "provider", v); },
   model(p) { return readStore("localStorage", "model:" + p); },
   setModel(p, v) { writeStore("localStorage", "model:" + p, v); },
+  get fast() { return readStore("localStorage", "fast") !== "0"; },
+  set fast(v) { writeStore("localStorage", "fast", v ? "1" : "0"); },
   get remember() { return readStore("localStorage", "remember") !== "0"; },
   set remember(v) { writeStore("localStorage", "remember", v ? "1" : "0"); },
   key(p) { return readStore("sessionStorage", "key:" + p) || readStore("localStorage", "key:" + p) || ""; },
@@ -42,7 +45,7 @@ const settings = {
 
 // ---------- providers ----------
 let anthropicModule = null;
-async function askClaude({ key, model, user }) {
+async function askClaude({ key, model, user, fast }) {
   anthropicModule ||= await import(SDK_URL);
   const Anthropic = anthropicModule.default;
   // The key belongs to the person using this page and goes only to api.anthropic.com.
@@ -58,7 +61,8 @@ async function askClaude({ key, model, user }) {
     max_tokens: 16000,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: user }],
-    output_config: { effort: "medium", format: { type: "json_schema", schema } },
+    // Fast mode: least thinking. (Thinking can't be switched off on these models; effort is the control.)
+    output_config: { effort: fast ? "low" : "medium", format: { type: "json_schema", schema } },
   };
   // On a safety decline, let the API retry on its recommended fallback model (not offered for Haiku).
   if (model !== "claude-haiku-5-5") {
@@ -105,21 +109,37 @@ async function listGeminiModels(key) {
     .map((m) => ({ id: m.name.replace(/^models\//, ""), label: m.displayName || m.name }));
 }
 
-async function askGemini({ key, model, user }) {
+// Fast mode asks for the least thinking. Not every Gemini model accepts every level,
+// so if one is rejected, retry with the next.
+async function askGemini({ key, model, user, fast }) {
+  const levels = fast ? ["minimal", "low", null] : [null];
+  for (let i = 0; i < levels.length; i++) {
+    try {
+      return await askGeminiOnce({ key, model, user, thinkingLevel: levels[i] });
+    } catch (err) {
+      const last = i === levels.length - 1;
+      if (last || !(err.status === 400 && /thinking/i.test(err.message))) throw err;
+    }
+  }
+}
+
+async function askGeminiOnce({ key, model, user, thinkingLevel }) {
+  const generationConfig = {
+    responseMimeType: "application/json",
+    responseSchema: { type: "OBJECT", properties: { suggestions: { type: "ARRAY", items: { type: "STRING" } } }, required: ["suggestions"] },
+  };
+  if (thinkingLevel) generationConfig.thinkingConfig = { thinkingLevel };
   const res = await fetch(`${GEMINI_API}/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
       contents: [{ role: "user", parts: [{ text: user }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: { type: "OBJECT", properties: { suggestions: { type: "ARRAY", items: { type: "STRING" } } }, required: ["suggestions"] },
-      },
+      generationConfig,
     }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(geminiError(res.status, data));
+  if (!res.ok) throw Object.assign(new Error(geminiError(res.status, data)), { status: res.status });
   const cand = data.candidates?.[0];
   if (!cand) throw new Error("Gemini returned no answer" + (data.promptFeedback?.blockReason ? ` (blocked: ${data.promptFeedback.blockReason})` : "."));
   if (cand.finishReason && !["STOP", "MAX_TOKENS"].includes(cand.finishReason)) {
@@ -171,8 +191,15 @@ export function initSuggest(editor) {
     remember: $("aiRemember"), forget: $("aiForget"), keyHelp: $("aiKeyHelp"), summary: $("aiSummary"),
     topic: $("topic"), targetNum: $("targetNum"), targetText: $("targetText"), matchSyl: $("matchSyl"),
     sylTarget: $("sylTarget"), rhymeWith: $("rhymeWith"), go: $("suggestBtn"), out: $("suggestOut"),
-    modeRewrite: $("modeRewrite"), modeNext: $("modeNext"),
+    modeRewrite: $("modeRewrite"), modeNext: $("modeNext"), fast: $("aiFast"),
   };
+  // One-time: switch existing Gemini users to the new default model.
+  if (readStore("localStorage", "geminiDefault") !== GEMINI_DEFAULT) {
+    settings.setModel("gemini", null);
+    writeStore("localStorage", "geminiDefault", GEMINI_DEFAULT);
+  }
+  els.fast.checked = settings.fast;
+  els.fast.addEventListener("change", () => { settings.fast = els.fast.checked; });
   let lineIndex = 0;
   let geminiModels = null;
 
@@ -185,7 +212,9 @@ export function initSuggest(editor) {
     else options = [{ id: saved || "", label: settings.key("gemini") ? "Loading models…" : "Enter your key to load models" }];
     els.model.replaceChildren(...options.map((m) => new Option(m.label, m.id)));
     const pick = options.find((m) => m.id === saved) ||
-      (p === "gemini" && options.find((m) => /flash/i.test(m.id) && !/lite|preview|exp/i.test(m.id))) || options[0];
+      (p === "gemini" && (options.find((m) => m.id === GEMINI_DEFAULT) ||
+        options.find((m) => m.id.startsWith(GEMINI_DEFAULT) && !/lite/i.test(m.id)) ||
+        options.find((m) => /flash/i.test(m.id) && !/lite|preview|exp/i.test(m.id)))) || options[0];
     if (pick) els.model.value = pick.id;
   }
 
@@ -297,7 +326,7 @@ export function initSuggest(editor) {
     els.go.textContent = "Thinking…";
     els.out.innerHTML = `<p class="hint">Asking ${p === "claude" ? "Claude" : "Gemini"}…</p>`;
     try {
-      const list = await (p === "claude" ? askClaude : askGemini)({ key, model, user: buildPrompt(req) });
+      const list = await (p === "claude" ? askClaude : askGemini)({ key, model, user: buildPrompt(req), fast: els.fast.checked });
       if (!list.length) throw new Error("No suggestions came back. Try again.");
       renderSuggestions(list, forIndex, forMode, s);
     } catch (err) {

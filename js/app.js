@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const els = {
   status: $("status"), title: $("title"), lyrics: $("lyrics"), mirror: $("mirror"), gutter: $("gutter"),
   scroll: $("editorScroll"), lineInfo: $("lineInfo"), form: $("searchForm"), query: $("query"),
-  results: $("results"), toast: $("toast"), rhymeHere: $("rhymeHere"), download: $("download"), share: $("share"),
+  results: $("results"), toast: $("toast"), rhymeHere: $("rhymeHere"), download: $("download"),
   perfect: $("optPerfect"), near: $("optNear"), assonance: $("optAssonance"), rare: $("optRare"), syl: $("optSyl"),
 };
 
@@ -146,19 +146,6 @@ function songText() {
   return (els.title.value.trim() ? els.title.value.trim() + "\n\n" : "") + els.lyrics.value;
 }
 
-// Share: phones/tablets get the system share sheet (pick Google Keep there).
-// Desktop has no share target for Keep, so copy the song and open Keep to paste it.
-els.share.addEventListener("click", async () => {
-  const title = els.title.value.trim() || "Untitled song";
-  const touch = window.matchMedia("(pointer: coarse)").matches;
-  if (touch && navigator.share) {
-    try { await navigator.share({ title, text: els.lyrics.value }); } catch { /* cancelled */ }
-    return;
-  }
-  await copy(songText(), "Song copied — paste it into the new Keep note");
-  window.open("https://keep.google.com/#create", "_blank", "noopener");
-});
-
 els.download.addEventListener("click", () => {
   const name = (els.title.value.trim() || "lyrics").replace(/[^\w\- ]+/g, "").trim() || "lyrics";
   const body = songText();
@@ -276,7 +263,7 @@ els.results.addEventListener("click", (e) => {
   if (b) copy(b.textContent);
 });
 
-async function copy(text, message = `Copied “${text}”`) {
+async function copy(text) {
   try { await navigator.clipboard.writeText(text); }
   catch {
     const t = document.createElement("textarea");
@@ -284,7 +271,7 @@ async function copy(text, message = `Copied “${text}”`) {
     try { document.execCommand("copy"); } catch { /* ignore */ }
     t.remove();
   }
-  toast(message);
+  toast(`Copied “${text}”`);
 }
 
 let toastTimer;

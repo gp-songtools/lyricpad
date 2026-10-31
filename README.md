@@ -11,7 +11,6 @@ A small, fast lyric-writing app that runs entirely in the browser.
 - Double-click any word in your lyrics (or press **Alt+R** / “Rhyme this word”) to look up its rhymes. On a blank line, it uses the last word of the line above.
 - Click a result to copy it.
 - Your draft is saved automatically in your browser; “Save .txt” downloads it.
-- **Share** sends the song to Google Keep (or any other app): on a phone or tablet it opens the system share sheet — pick Keep. On a computer it copies the song and opens a new Keep note to paste into (Google doesn't offer a way for websites to create Keep notes directly).
 
 No server, no API keys, works offline once loaded.
 

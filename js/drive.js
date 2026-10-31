@@ -5,7 +5,7 @@
 // The access token lives in memory (and sessionStorage, so a reload within the hour
 // doesn't need another sign-in); nothing is sent anywhere except Google.
 
-import { GOOGLE_CLIENT_ID } from "./config.js?v=88a03e52";
+import { GOOGLE_CLIENT_ID } from "./config.js?v=42e8c7c5";
 
 const SCOPE = "https://www.googleapis.com/auth/drive.file";
 const FOLDER_NAME = "Lyricpad";
@@ -47,30 +47,58 @@ let token = null; // { value, expires }
 try { token = JSON.parse(session.get("token")); } catch { token = null; }
 const tokenValid = () => token && token.expires > Date.now() + 60_000;
 
-// Ask Google for an access token. Must be called from a click (it may open a popup).
-async function signIn() {
-  if (!clientId()) throw new Error("Google Drive isn't set up yet.");
-  await loadGis();
-  return new Promise((resolve, reject) => {
-    const client = google.accounts.oauth2.initTokenClient({
+// Browsers only allow a sign-in popup that opens directly from a click, with nothing
+// awaited in between. So Google's script is loaded and the token client set up ahead of
+// time (prepareSignIn, at page load), and signIn() opens the popup synchronously.
+let tokenClient = null, pending = null, gisFailed = false;
+
+function prepareSignIn() {
+  if (!clientId()) return Promise.resolve();
+  return loadGis().then(() => {
+    gisFailed = false;
+    if (tokenClient) return;
+    tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: clientId(),
       scope: SCOPE,
       callback: (resp) => {
-        if (resp.error) return reject(new Error(resp.error_description || resp.error));
+        const p = pending;
+        pending = null;
+        if (!p) return;
+        if (resp.error) return p.reject(new Error(resp.error_description || resp.error));
         if (!google.accounts.oauth2.hasGrantedAllScopes(resp, SCOPE)) {
-          return reject(new Error("Lyricpad needs permission to save files to your Drive. Please allow it when Google asks."));
+          return p.reject(new Error("Lyricpad needs permission to save files to your Drive. Please allow it when Google asks."));
         }
         token = { value: resp.access_token, expires: Date.now() + (Number(resp.expires_in) || 3600) * 1000 };
         session.set("token", JSON.stringify(token));
         store.set("connected", "1");
-        resolve();
+        p.resolve();
       },
-      error_callback: (err) => reject(new Error(err?.type === "popup_closed"
-        ? "Sign-in window was closed."
-        : err?.type === "popup_failed_to_open" ? "Your browser blocked the Google sign-in window. Allow pop-ups for this site and try again."
-        : "Google sign-in failed.")),
+      error_callback: (err) => {
+        const p = pending;
+        pending = null;
+        p?.reject(new Error(err?.type === "popup_closed"
+          ? "The Google sign-in window was closed."
+          : err?.type === "popup_failed_to_open"
+            ? "Your browser blocked the Google sign-in window. Allow pop-ups for this site, then press Save again."
+            : "Google sign-in failed."));
+      },
     });
-    client.requestAccessToken({ prompt: store.get("connected") ? "" : "consent" });
+  }).catch((err) => { gisFailed = true; throw err; });
+}
+
+// Opens Google's sign-in popup. Call it straight from a click handler, before any await.
+function signIn() {
+  if (!clientId()) return Promise.reject(new Error("Google Drive isn't set up yet."));
+  if (!tokenClient) {
+    prepareSignIn().catch(() => {});
+    return Promise.reject(new Error(gisFailed
+      ? "Couldn't load Google sign-in. If you use an ad or tracker blocker, allow accounts.google.com for this site, then try again."
+      : "Google sign-in is still loading — try again in a moment."));
+  }
+  return new Promise((resolve, reject) => {
+    pending?.reject(new Error("Sign-in was restarted."));
+    pending = { resolve, reject };
+    tokenClient.requestAccessToken({ prompt: store.get("connected") ? "" : "consent" });
   });
 }
 
@@ -196,12 +224,14 @@ export function initDrive(editor) {
     showState(`Saved to Drive · ${t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, "ok");
   }
 
+  // Signs in first if needed. Must be reached from a click with nothing awaited before it.
   async function withSignIn(fn) {
+    if (!tokenValid()) await signIn();
     try {
-      if (!tokenValid()) await signIn();
       return await fn();
     } catch (err) {
-      if (err instanceof NeedsSignIn) { await signIn(); return fn(); }
+      // Too late to open a popup here (the click is "used up"), so ask for another click.
+      if (err instanceof NeedsSignIn) throw new Error("Your Google sign-in expired. Press Save again to reconnect.");
       throw err;
     }
   }
@@ -378,6 +408,7 @@ export function initDrive(editor) {
     const v = els.clientInput.value.trim();
     if (!/\.apps\.googleusercontent\.com$/.test(v)) return editor.toast("That doesn't look like a Google OAuth client ID");
     store.set("clientId", v);
+    prepareSignIn().catch(() => {});
     renderAccount();
     refreshState();
   });
@@ -388,6 +419,7 @@ export function initDrive(editor) {
     }
   });
 
+  prepareSignIn().catch((err) => console.error(err));
   return {
     // Called by the editor on every change.
     edited() { refreshState(); scheduleAutosave(); },

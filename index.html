@@ -6,7 +6,7 @@
   <title>Lyricpad</title>
   <meta name="description" content="A lyric editor with live syllable counts and a rhyme finder.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✎</text></svg>">
-  <link rel="stylesheet" href="css/style.css?v=ab42049e">
+  <link rel="stylesheet" href="css/style.css?v=795918ce">
 </head>
 <body>
   <header class="topbar">
@@ -20,7 +20,8 @@
         <input id="title" class="song-title" placeholder="Untitled song" aria-label="Song title" spellcheck="false">
         <div class="tools">
           <button id="rhymeHere" title="Find rhymes for the selected word, or the last word of the line above (Alt+R)">Rhyme this word</button>
-          <button id="download" title="Download as a text file">Save .txt</button>
+          <button id="songsBtn" title="Open, start or download songs">Songs</button>
+          <button id="saveBtn" title="Save to Google Drive (Ctrl/Cmd+S)">Save</button>
         </div>
       </div>
       <div class="editor-scroll" id="editorScroll">
@@ -32,7 +33,7 @@
           </div>
         </div>
       </div>
-      <div class="panel-foot" id="lineInfo">&nbsp;</div>
+      <div class="panel-foot"><span id="lineInfo">&nbsp;</span><span id="saveState" class="save-state"></span></div>
     </section>
 
     <section class="panel side-panel" aria-label="Rhymes and suggestions">
@@ -147,7 +148,27 @@
       </div>
     </section>
   </main>
+  <dialog id="songsDialog" class="songs-dialog" aria-labelledby="songsTitle">
+    <div class="dlg-head">
+      <h2 id="songsTitle">Songs</h2>
+      <button type="button" id="songsClose" class="ghost" aria-label="Close">✕</button>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" id="newSong">New song</button>
+      <button type="button" id="downloadTxt">Download .txt</button>
+    </div>
+    <div id="driveAccount" class="drive-account" hidden></div>
+    <div id="driveSetup" class="drive-setup" hidden>
+      <p>To save songs to Google Drive, Lyricpad needs a Google OAuth client ID (see “Google Drive setup” in the project README). If you have one, paste it here:</p>
+      <div class="row">
+        <input id="driveClientId" placeholder="…apps.googleusercontent.com" autocomplete="off" spellcheck="false">
+        <button type="button" id="driveClientSave">Use it</button>
+      </div>
+    </div>
+    <input id="songFilter" type="search" placeholder="Filter songs" autocomplete="off" aria-label="Filter songs" hidden>
+    <div id="songList" class="song-list"></div>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=ab42049e"></script>
+  <script type="module" src="js/app.js?v=795918ce"></script>
 </body>
 </html>

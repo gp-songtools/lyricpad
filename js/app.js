@@ -1,8 +1,9 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=ab42049e";
-import { initSuggest } from "./suggest.js?v=ab42049e";
-import { initThesaurus } from "./thesaurus.js?v=ab42049e";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=795918ce";
+import { initSuggest } from "./suggest.js?v=795918ce";
+import { initThesaurus } from "./thesaurus.js?v=795918ce";
+import { initDrive } from "./drive.js?v=795918ce";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -15,7 +16,7 @@ const $ = (id) => document.getElementById(id);
 const els = {
   status: $("status"), title: $("title"), lyrics: $("lyrics"), mirror: $("mirror"), gutter: $("gutter"),
   scroll: $("editorScroll"), lineInfo: $("lineInfo"), form: $("searchForm"), query: $("query"),
-  results: $("results"), toast: $("toast"), rhymeHere: $("rhymeHere"), download: $("download"),
+  results: $("results"), toast: $("toast"), rhymeHere: $("rhymeHere"),
   perfect: $("optPerfect"), near: $("optNear"), assonance: $("optAssonance"), rare: $("optRare"), syl: $("optSyl"),
 };
 
@@ -120,8 +121,9 @@ els.lyrics.addEventListener("input", () => {
   renderEditor();
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => store.set("text", els.lyrics.value), 300);
+  drive?.edited();
 });
-els.title.addEventListener("input", () => store.set("title", els.title.value));
+els.title.addEventListener("input", () => { store.set("title", els.title.value); drive?.edited(); });
 document.addEventListener("selectionchange", () => { if (document.activeElement === els.lyrics) markCurrent(); });
 new ResizeObserver(() => renderEditor()).observe(els.scroll);
 
@@ -185,7 +187,7 @@ function songText() {
   return (els.title.value.trim() ? els.title.value.trim() + "\n\n" : "") + els.lyrics.value;
 }
 
-els.download.addEventListener("click", () => {
+function downloadTxt() {
   const name = (els.title.value.trim() || "lyrics").replace(/[^\w\- ]+/g, "").trim() || "lyrics";
   const body = songText();
   const a = document.createElement("a");
@@ -193,7 +195,7 @@ els.download.addEventListener("click", () => {
   a.download = name + ".txt";
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-});
+}
 
 // ---------- rhymes ----------
 const LABELS = { perfect: "Perfect rhymes", near: "Near rhymes", assonance: "Vowel matches" };
@@ -315,6 +317,9 @@ async function copy(text) {
 
 let toastTimer;
 function toast(msg) {
+  // An open dialog sits above the page, so show the message inside it.
+  const host = document.querySelector("dialog[open]") || document.body;
+  if (els.toast.parentElement !== host) host.appendChild(els.toast);
   els.toast.textContent = msg;
   els.toast.classList.add("show");
   clearTimeout(toastTimer);
@@ -395,6 +400,24 @@ const thesaurus = safeInit("Thesaurus", () => initThesaurus({
   copy,
   toast,
 }));
+const drive = safeInit("Google Drive", () => initDrive({
+  title: () => els.title.value,
+  text: () => els.lyrics.value,
+  // Replace the whole song (opening one from Drive, or starting a new one).
+  load({ title, text }) {
+    clearTimeout(saveTimer);
+    els.title.value = title;
+    els.lyrics.value = text;
+    store.set("title", title);
+    store.set("text", text);
+    els.lyrics.setSelectionRange(0, 0);
+    els.scroll.scrollTop = 0;
+    renderEditor();
+  },
+  focus: () => els.lyrics.focus(),
+  download: downloadTxt,
+  toast,
+}));
 {
   const saved = store.get("tab", "tabRhymes");
   showTab($(saved) || $("tabRhymes"));
@@ -411,6 +434,7 @@ const thesaurus = safeInit("Thesaurus", () => initThesaurus({
   }
   renderEditor();
 })();
+drive?.ready();
 
 fetch("data/dict.txt" + VERSION)
   .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })

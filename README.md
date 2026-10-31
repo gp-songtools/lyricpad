@@ -10,12 +10,27 @@ A small, fast lyric-writing app that runs entirely in the browser.
   - filter by syllable count, and optionally include rare words
 - Double-click any word in your lyrics (or press **Alt+R** / “Rhyme this word”) to look up its rhymes. On a blank line, it uses the last word of the line above.
 - Click a result to copy it.
-- Your draft is saved automatically in your browser; “Save .txt” downloads it.
+- **Songs on Google Drive** — **Save** (or Ctrl/Cmd+S) stores the song as `Title.txt` in a **Lyricpad** folder on your Google Drive; after that, changes save automatically a few seconds after you stop typing. **Songs** lists your saved songs to open, starts a new one, or downloads a `.txt`. If a song was changed on another device since you opened it, Lyricpad stops auto-saving and asks before overwriting. Lyricpad can only see files it created itself — not the rest of your Drive. Needs a one-time setup (below).
+- The song you're working on is also kept in your browser, so nothing is lost if you close the tab.
 
 - **Thesaurus** — synonyms for a word, grouped by meaning, plus a wider list of related words. Double-click a word in your lyrics while the tab is open (or press **Alt+T**) to look it up, then click a synonym to swap it in (capitalisation is kept; Ctrl/Cmd+Z undoes). Fill in **Must rhyme with** to see only synonyms that rhyme (perfect and/or near) with another word; this also searches synonyms-of-synonyms, shown separately as “further afield”. Small numbers show each word's syllable count.
 - **Suggest lines** (optional, uses AI with your own API key) — pick a line in the editor, give a topic or feel, and ask for alternatives to that line or options for the next one. You can set how many syllables each suggestion should have (it starts at the selected line's count; type a number or use −/+ or the arrow keys) and a word it should rhyme with. **Fast mode** (on by default) tells the model to think less before answering, which is much quicker. Each suggestion shows its syllable count (checked locally); “Replace line” / “Insert below” drop it into the song, and Ctrl/Cmd+Z undoes.
 
 Everything except line suggestions runs offline in the browser, with no server and no API keys.
+
+## Google Drive setup (one time, ~10 minutes)
+
+Google only lets a website use Drive after the site is registered with Google Cloud. Registration is free.
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com/) and create a project (e.g. “Lyricpad”).
+2. **APIs & Services → Library**: find **Google Drive API** and click **Enable**.
+3. **Google Auth Platform** (called **OAuth consent screen** in some versions of the console) → **Get started**: app name “Lyricpad”, your email as support and contact email, audience **External**.
+4. **Audience → Test users**: add your own Google account (and anyone else who'll use your copy). Leave the app in **Testing**.
+5. **Data access → Add or remove scopes**: add `https://www.googleapis.com/auth/drive.file` (“See, edit, create, and delete only the specific Google Drive files you use with this app”).
+6. **Clients → Create client**: type **Web application**. Under **Authorized JavaScript origins** add `https://pcarenza.github.io` (and `http://localhost:8000` if you run it locally). No redirect URIs are needed.
+7. Copy the **Client ID** (ends in `.apps.googleusercontent.com`) and put it in `js/config.js`, or paste it into the **Songs** dialog in each browser you use.
+
+The client ID isn't a secret: Google only accepts it from the origins listed in step 6. The first time you connect, Google may warn that the app isn't verified (it's your own app in Testing) — choose **Continue**.
 
 ## Line suggestions: providers and keys
 

@@ -94,7 +94,7 @@ export function initThesaurus(editor) {
   let source = null; // where the looked-up word sits in the lyrics, so a click can swap it
 
   function load() {
-    loading ||= fetch(new URL("../data/thesaurus.txt", import.meta.url))
+    loading ||= fetch(new URL("../data/thesaurus.txt" + new URL(import.meta.url).search, import.meta.url))
       .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
       .then((t) => (data = new Thesaurus(t)))
       .catch((err) => { loading = null; throw err; });

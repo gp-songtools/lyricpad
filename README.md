@@ -40,6 +40,14 @@ python3 -m http.server 8000
 
 then open http://localhost:8000. (Opening `index.html` straight from disk won't work: browsers block loading the dictionary file from `file://`.)
 
+## Making changes
+
+Every script and stylesheet the page loads carries a version stamp (`?v=…`) so browsers never mix new files with stale cached ones after an update. Before committing changes to `index.html`, `js/`, `css/` or `data/`, run:
+
+```bash
+tools/stamp-version.sh
+```
+
 ## Publishing on GitHub Pages
 
 1. Push this repository to GitHub.

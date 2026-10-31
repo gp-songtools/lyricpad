@@ -1,6 +1,15 @@
-import { Lexicon, guessSyllables } from "./phonetics.js";
-import { initSuggest } from "./suggest.js";
-import { initThesaurus } from "./thesaurus.js";
+// The "?v=" stamps make browsers fetch matching copies of every file after an update
+// (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
+import { Lexicon, guessSyllables } from "./phonetics.js?v=ab42049e";
+import { initSuggest } from "./suggest.js?v=ab42049e";
+import { initThesaurus } from "./thesaurus.js?v=ab42049e";
+
+const VERSION = new URL(import.meta.url).search;
+
+// A problem in one side panel must never stop the editor or the dictionary from working.
+function safeInit(name, init) {
+  try { return init(); } catch (err) { console.error(`${name} panel failed to start:`, err); return null; }
+}
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -96,7 +105,7 @@ function markCurrent() {
   if (rows[lastCurrent]) rows[lastCurrent].classList.remove("current");
   if (rows[i]) rows[i].classList.add("current");
   lastCurrent = i;
-  suggest?.refreshTarget();
+  try { suggest?.refreshTarget(); } catch (err) { console.error(err); }
 
   const s = lineData[i];
   const nonEmpty = lineData.filter(Boolean).length;
@@ -141,13 +150,13 @@ function rhymeFromEditor() {
 }
 // Double-click a word: thesaurus lookup when that tab is open, otherwise rhymes.
 els.lyrics.addEventListener("dblclick", () => setTimeout(() => {
-  if (!$("paneThes").hidden) thesaurus.lookupFromEditor();
+  if (!$("paneThes").hidden) thesaurus?.lookupFromEditor();
   else rhymeFromEditor();
 }, 0));
 els.rhymeHere.addEventListener("click", () => { rhymeFromEditor(); els.lyrics.focus(); });
 document.addEventListener("keydown", (e) => {
   if (e.altKey && e.code === "KeyR") { e.preventDefault(); rhymeFromEditor(); }
-  if (e.altKey && e.code === "KeyT") { e.preventDefault(); showTab($("tabThes")); thesaurus.lookupFromEditor(); }
+  if (e.altKey && e.code === "KeyT") { e.preventDefault(); showTab($("tabThes")); thesaurus?.lookupFromEditor(); }
 });
 
 // The single word that is selected or under the cursor, with its position: {word, start, end}.
@@ -329,13 +338,13 @@ function showTab(btn) {
     pane.hidden = b !== btn;
   }
   store.set("tab", btn.id);
-  if (btn.id === "tabSuggest") suggest.refreshTarget();
-  if (btn.id === "tabThes") thesaurus.preload();
+  if (btn.id === "tabSuggest") suggest?.refreshTarget();
+  if (btn.id === "tabThes") thesaurus?.preload();
 }
 for (const [b] of tabs) b.addEventListener("click", () => {
   showTab(b);
   // Opening the thesaurus with a word selected in the lyrics looks that word up.
-  if (b.id === "tabThes" && els.lyrics.selectionEnd > els.lyrics.selectionStart) thesaurus.lookupFromEditor();
+  if (b.id === "tabThes" && els.lyrics.selectionEnd > els.lyrics.selectionStart) thesaurus?.lookupFromEditor();
 });
 // Looking up rhymes always brings the Rhymes tab forward.
 const _search = search;
@@ -356,7 +365,7 @@ function lineBounds(index) {
   for (let i = 0; i < index; i++) start += lines[i].length + 1;
   return { start, end: start + (lines[index] ?? "").length };
 }
-const suggest = initSuggest({
+const suggest = safeInit("Suggest lines", () => initSuggest({
   context: () => ({ title: els.title.value.trim(), lines: els.lyrics.value.split("\n") }),
   currentLine: currentLineIndex,
   lineSyllables,
@@ -372,8 +381,8 @@ const suggest = initSuggest({
   },
   copy,
   toast,
-});
-const thesaurus = initThesaurus({
+}));
+const thesaurus = safeInit("Thesaurus", () => initThesaurus({
   lexicon: () => lexicon,
   lineSyllables,
   wordAtCursor,
@@ -385,7 +394,7 @@ const thesaurus = initThesaurus({
   },
   copy,
   toast,
-});
+}));
 {
   const saved = store.get("tab", "tabRhymes");
   showTab($(saved) || $("tabRhymes"));
@@ -403,7 +412,7 @@ const thesaurus = initThesaurus({
   renderEditor();
 })();
 
-fetch("data/dict.txt")
+fetch("data/dict.txt" + VERSION)
   .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
   .then((text) => {
     lexicon = new Lexicon(text);

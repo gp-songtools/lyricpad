@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const els = {
   status: $("status"), title: $("title"), lyrics: $("lyrics"), mirror: $("mirror"), gutter: $("gutter"),
   scroll: $("editorScroll"), lineInfo: $("lineInfo"), form: $("searchForm"), query: $("query"),
-  results: $("results"), toast: $("toast"), rhymeHere: $("rhymeHere"), download: $("download"),
+  results: $("results"), toast: $("toast"), rhymeHere: $("rhymeHere"), download: $("download"), share: $("share"),
   perfect: $("optPerfect"), near: $("optNear"), assonance: $("optAssonance"), rare: $("optRare"), syl: $("optSyl"),
 };
 
@@ -29,9 +29,11 @@ function wordSyllables(w) {
   return r;
 }
 
-const SECTION = /^\s*\[.*\]\s*$/; // [Chorus], [Verse 2] ...
+// Meta tags like [Chorus] or [Verse 2 - softer] aren't sung: drop them wherever they appear.
+const stripTags = (line) => line.replace(/\[[^\]]*\]?/g, " ");
 function lineSyllables(line) {
-  if (!line.trim() || SECTION.test(line)) return null;
+  line = stripTags(line);
+  if (!line.trim()) return null;
   const words = line.split(/[\s\-–—/]+/).filter((w) => /[a-z]/i.test(w));
   let min = 0, max = 0, guessed = false;
   const parts = [];
@@ -122,8 +124,7 @@ function wordForRhyme() {
   if (before + after) return before + after;
   const lines = v.slice(0, pos).split("\n");
   for (let i = lines.length - 1; i >= 0; i--) {
-    if (SECTION.test(lines[i])) continue;
-    const m = lines[i].match(/([a-z'’]+)[^a-z]*$/i);
+    const m = stripTags(lines[i]).match(/([a-z'’]+)[^a-z]*$/i);
     if (m) return m[1];
   }
   return "";
@@ -141,9 +142,26 @@ document.addEventListener("keydown", (e) => {
   if (e.altKey && e.code === "KeyR") { e.preventDefault(); rhymeFromEditor(); }
 });
 
+function songText() {
+  return (els.title.value.trim() ? els.title.value.trim() + "\n\n" : "") + els.lyrics.value;
+}
+
+// Share: phones/tablets get the system share sheet (pick Google Keep there).
+// Desktop has no share target for Keep, so copy the song and open Keep to paste it.
+els.share.addEventListener("click", async () => {
+  const title = els.title.value.trim() || "Untitled song";
+  const touch = window.matchMedia("(pointer: coarse)").matches;
+  if (touch && navigator.share) {
+    try { await navigator.share({ title, text: els.lyrics.value }); } catch { /* cancelled */ }
+    return;
+  }
+  await copy(songText(), "Song copied — paste it into the new Keep note");
+  window.open("https://keep.google.com/#create", "_blank", "noopener");
+});
+
 els.download.addEventListener("click", () => {
   const name = (els.title.value.trim() || "lyrics").replace(/[^\w\- ]+/g, "").trim() || "lyrics";
-  const body = (els.title.value.trim() ? els.title.value.trim() + "\n\n" : "") + els.lyrics.value;
+  const body = songText();
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([body], { type: "text/plain" }));
   a.download = name + ".txt";
@@ -258,7 +276,7 @@ els.results.addEventListener("click", (e) => {
   if (b) copy(b.textContent);
 });
 
-async function copy(text) {
+async function copy(text, message = `Copied “${text}”`) {
   try { await navigator.clipboard.writeText(text); }
   catch {
     const t = document.createElement("textarea");
@@ -266,7 +284,7 @@ async function copy(text) {
     try { document.execCommand("copy"); } catch { /* ignore */ }
     t.remove();
   }
-  toast(`Copied “${text}”`);
+  toast(message);
 }
 
 let toastTimer;
@@ -274,7 +292,7 @@ function toast(msg) {
   els.toast.textContent = msg;
   els.toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => els.toast.classList.remove("show"), 1400);
+  toastTimer = setTimeout(() => els.toast.classList.remove("show"), Math.max(1400, msg.length * 60));
 }
 
 function escapeHtml(s) {

@@ -2,7 +2,7 @@
 
 A small, fast lyric-writing app that runs entirely in the browser.
 
-- **Live syllable counts** — every line of your lyrics shows its syllable count in the left gutter, updating as you type. Words with more than one common pronunciation show a range (`fire` → 1–2, so a line might read `8–9`). Words the dictionary doesn't know are estimated and marked with `?`. Hover a count to see the per-word breakdown. Section labels like `[Chorus]` are skipped.
+- **Live syllable counts** — every line of your lyrics shows its syllable count in the left gutter, updating as you type. Words with more than one common pronunciation show a range (`fire` → 1–2, so a line might read `8–9`). Words the dictionary doesn't know are estimated and marked with `?`. Hover a count to see the per-word breakdown. Anything in square brackets, like `[Chorus]` or `[Verse 2 – softer]`, is a meta tag and isn't counted, wherever it appears in the line.
 - **Rhyme finder** — search a word or a short phrase (“phone me”) and pick what you want:
   - **Perfect** rhymes — identical sound from the stressed vowel on (*heart / start*)
   - **Near** rhymes — slant rhymes that are close but not exact (*heart / hard*, *time / mine*)
@@ -11,6 +11,7 @@ A small, fast lyric-writing app that runs entirely in the browser.
 - Double-click any word in your lyrics (or press **Alt+R** / “Rhyme this word”) to look up its rhymes. On a blank line, it uses the last word of the line above.
 - Click a result to copy it.
 - Your draft is saved automatically in your browser; “Save .txt” downloads it.
+- **Share** sends the song to Google Keep (or any other app): on a phone or tablet it opens the system share sheet — pick Keep. On a computer it copies the song and opens a new Keep note to paste into (Google doesn't offer a way for websites to create Keep notes directly).
 
 No server, no API keys, works offline once loaded.
 

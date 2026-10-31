@@ -1,9 +1,9 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=42e8c7c5";
-import { initSuggest } from "./suggest.js?v=42e8c7c5";
-import { initThesaurus } from "./thesaurus.js?v=42e8c7c5";
-import { initDrive } from "./drive.js?v=42e8c7c5";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=c9530594";
+import { initSuggest } from "./suggest.js?v=c9530594";
+import { initThesaurus } from "./thesaurus.js?v=c9530594";
+import { initDrive } from "./drive.js?v=c9530594";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -187,6 +187,7 @@ function songText() {
   return (els.title.value.trim() ? els.title.value.trim() + "\n\n" : "") + els.lyrics.value;
 }
 
+$("exportBtn").addEventListener("click", () => downloadTxt());
 function downloadTxt() {
   const name = (els.title.value.trim() || "lyrics").replace(/[^\w\- ]+/g, "").trim() || "lyrics";
   const body = songText();

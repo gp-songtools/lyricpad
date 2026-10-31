@@ -190,7 +190,7 @@ export function initSuggest(editor) {
     settings: $("aiSettings"), provider: $("aiProvider"), key: $("aiKey"), model: $("aiModel"),
     remember: $("aiRemember"), forget: $("aiForget"), keyHelp: $("aiKeyHelp"), summary: $("aiSummary"),
     topic: $("topic"), targetNum: $("targetNum"), targetText: $("targetText"), matchSyl: $("matchSyl"),
-    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), go: $("suggestBtn"), out: $("suggestOut"),
+    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), rhymeOn: $("rhymeOn"), rhymeReset: $("rhymeReset"), go: $("suggestBtn"), out: $("suggestOut"),
     modeRewrite: $("modeRewrite"), modeNext: $("modeNext"), fast: $("aiFast"),
   };
   // One-time: switch existing Gemini users to the new default model.
@@ -334,6 +334,52 @@ export function initSuggest(editor) {
   els.sylCount.addEventListener("change", () => setSyl(+els.sylCount.value));
   els.sylReset.addEventListener("click", () => { sylCustom = false; updateSyl(editor.context().lines); });
 
+  // ---- rhyme target ----
+  // In "Write the next line" mode the rhyme word starts as the last word of the selected line
+  // (or of the nearest lyric line above an empty one) and follows it, until you type your own;
+  // picking another line or switching modes starts over. The checkbox turns the rhyme on/off.
+  let rhymeLine = -1, rhymeMode = null, rhymeCustom = false, rhymeDefault = "";
+  const stripTags = (line) => line.replace(/\[[^\]]*\]?/g, " ");
+
+  function lastWord(lines, index) {
+    for (let i = index; i >= 0; i--) {
+      const m = stripTags(lines[i] || "").match(/([a-z][a-z'\u2019]*)[^a-z]*$/i);
+      if (m) return m[1].replace(/(?<!in)['\u2019]+$/i, "");
+    }
+    return "";
+  }
+  function updateRhyme(lines) {
+    const m = mode();
+    rhymeDefault = m === "next" ? lastWord(lines, lineIndex) : "";
+    if (m !== rhymeMode) {
+      // Entering "next line" turns the rhyme on; leaving it drops the automatic word.
+      if (m === "next" && rhymeMode !== null) els.rhymeOn.checked = true;
+      if (m === "rewrite" && !rhymeCustom) els.rhymeOn.checked = false;
+      rhymeMode = m;
+      rhymeLine = lineIndex;
+      if (m === "next") rhymeCustom = false;
+    } else if (lineIndex !== rhymeLine) {
+      rhymeLine = lineIndex;
+      if (m === "next") rhymeCustom = false;
+    }
+    if (!rhymeCustom) els.rhymeWith.value = rhymeDefault;
+    els.rhymeWith.disabled = !els.rhymeOn.checked;
+    const differs = m === "next" && rhymeCustom && rhymeDefault && els.rhymeWith.value.trim() !== rhymeDefault;
+    els.rhymeReset.hidden = !differs;
+    els.rhymeReset.textContent = `reset to “${rhymeDefault}”`;
+    writeStore("localStorage", "rhymeOn:" + m, els.rhymeOn.checked ? "1" : "0");
+  }
+  els.rhymeWith.addEventListener("input", () => {
+    rhymeCustom = els.rhymeWith.value.trim() !== "";
+    if (rhymeCustom) els.rhymeOn.checked = true;
+    updateRhyme(editor.context().lines);
+  });
+  els.rhymeOn.addEventListener("change", () => updateRhyme(editor.context().lines));
+  els.rhymeReset.addEventListener("click", () => { rhymeCustom = false; updateRhyme(editor.context().lines); });
+  for (const r of [els.modeNext, els.modeRewrite]) r.addEventListener("change", () => updateRhyme(editor.context().lines));
+  // Start in whichever on/off state was last used for the starting mode.
+  els.rhymeOn.checked = readStore("localStorage", "rhymeOn:" + mode()) === "1" || (mode() === "next" && readStore("localStorage", "rhymeOn:next") === null);
+
   function refreshTarget() {
     const { lines } = editor.context();
     lineIndex = Math.min(editor.currentLine(), lines.length - 1);
@@ -342,6 +388,7 @@ export function initSuggest(editor) {
     els.targetText.textContent = text.trim() ? text : "— empty line —";
     els.targetText.classList.toggle("empty", !text.trim());
     updateSyl(lines);
+    updateRhyme(lines);
   }
 
   function showError(msg) {
@@ -363,7 +410,7 @@ export function initSuggest(editor) {
     if (syllables) els.sylCount.value = syllables;
     const req = {
       title, topic: els.topic.value.trim(), lines, index: lineIndex, mode: mode(),
-      syllables, rhymeWith: els.rhymeWith.value.trim(),
+      syllables, rhymeWith: els.rhymeOn.checked ? els.rhymeWith.value.trim() : "",
     };
     const forIndex = lineIndex, forMode = mode();
     els.go.disabled = true;

@@ -6,7 +6,7 @@
   <title>Lyricpad</title>
   <meta name="description" content="A lyric editor with live syllable counts and a rhyme finder.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✎</text></svg>">
-  <link rel="stylesheet" href="css/style.css?v=c9530594">
+  <link rel="stylesheet" href="css/style.css?v=669b5331">
 </head>
 <body>
   <header class="topbar">
@@ -138,9 +138,11 @@
             </div>
             <button type="button" class="linkish" id="sylReset" hidden></button>
           </div>
-          <label class="field"><span>Should rhyme with <span class="muted">(optional)</span></span>
-            <input id="rhymeWith" placeholder="e.g. tonight" autocomplete="off" spellcheck="false">
-          </label>
+          <div class="rhyme-row">
+            <label class="check"><input type="checkbox" id="rhymeOn"> <span>Should rhyme with</span></label>
+            <input id="rhymeWith" placeholder="e.g. tonight" autocomplete="off" spellcheck="false" aria-label="Word the suggestions should rhyme with">
+            <button type="button" class="linkish" id="rhymeReset" hidden></button>
+          </div>
 
           <label class="check" title="Less thinking before answering: much quicker, slightly less polished"><input type="checkbox" id="aiFast" checked> <span>Fast mode <span class="muted">— less thinking, quicker answers</span></span></label>
           <button type="button" class="primary" id="suggestBtn">Suggest lines</button>
@@ -170,6 +172,6 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=c9530594"></script>
+  <script type="module" src="js/app.js?v=669b5331"></script>
 </body>
 </html>

@@ -190,7 +190,7 @@ export function initSuggest(editor) {
     settings: $("aiSettings"), provider: $("aiProvider"), key: $("aiKey"), model: $("aiModel"),
     remember: $("aiRemember"), forget: $("aiForget"), keyHelp: $("aiKeyHelp"), summary: $("aiSummary"),
     topic: $("topic"), targetNum: $("targetNum"), targetText: $("targetText"), matchSyl: $("matchSyl"),
-    sylTarget: $("sylTarget"), rhymeWith: $("rhymeWith"), go: $("suggestBtn"), out: $("suggestOut"),
+    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), go: $("suggestBtn"), out: $("suggestOut"),
     modeRewrite: $("modeRewrite"), modeNext: $("modeNext"), fast: $("aiFast"),
   };
   // One-time: switch existing Gemini users to the new default model.
@@ -288,6 +288,52 @@ export function initSuggest(editor) {
 
   function mode() { return els.modeNext.checked ? "next" : "rewrite"; }
 
+  // ---- syllable target ----
+  // Starts at the selected line's count and follows it as you type, until you set your own
+  // number; picking a different line starts it over from that line.
+  let sylLine = -1, sylCustom = false, sylDefault = 8;
+  const clampSyl = (n) => Math.min(40, Math.max(1, Math.round(n) || 1));
+
+  function lineDefault(lines, index) {
+    // An empty line borrows the count of the nearest lyric line above it.
+    for (let i = index; i >= 0; i--) {
+      const s = editor.lineSyllables(lines[i] || "");
+      if (s) return s.min;
+    }
+    return 8;
+  }
+  function updateSyl(lines) {
+    sylDefault = lineDefault(lines, lineIndex);
+    if (lineIndex !== sylLine) { sylLine = lineIndex; sylCustom = false; }
+    if (!sylCustom) els.sylCount.value = sylDefault;
+    const differs = sylCustom && +els.sylCount.value !== sylDefault;
+    els.sylReset.hidden = !differs;
+    els.sylReset.textContent = `reset to ${sylDefault} (${(lines[lineIndex] || "").trim() ? "this line" : "line above"})`;
+  }
+  function setSyl(n) {
+    els.sylCount.value = clampSyl(n);
+    sylCustom = true;
+    els.matchSyl.checked = true;
+    syncSylEnabled();
+    updateSyl(editor.context().lines);
+  }
+  function syncSylEnabled() {
+    els.sylCount.disabled = els.sylUp.disabled = els.sylDown.disabled = !els.matchSyl.checked;
+    writeStore("localStorage", "matchSyl", els.matchSyl.checked ? "1" : "0");
+  }
+  els.matchSyl.checked = readStore("localStorage", "matchSyl") !== "0";
+  syncSylEnabled();
+  els.matchSyl.addEventListener("change", syncSylEnabled);
+  els.sylUp.addEventListener("click", () => setSyl(+els.sylCount.value + 1));
+  els.sylDown.addEventListener("click", () => setSyl(+els.sylCount.value - 1));
+  els.sylCount.addEventListener("input", () => {
+    if (els.sylCount.value === "") return; // let people clear the box while typing
+    sylCustom = true;
+    updateSyl(editor.context().lines);
+  });
+  els.sylCount.addEventListener("change", () => setSyl(+els.sylCount.value));
+  els.sylReset.addEventListener("click", () => { sylCustom = false; updateSyl(editor.context().lines); });
+
   function refreshTarget() {
     const { lines } = editor.context();
     lineIndex = Math.min(editor.currentLine(), lines.length - 1);
@@ -295,9 +341,7 @@ export function initSuggest(editor) {
     els.targetNum.textContent = `(line ${lineIndex + 1})`;
     els.targetText.textContent = text.trim() ? text : "— empty line —";
     els.targetText.classList.toggle("empty", !text.trim());
-    const s = editor.lineSyllables(text);
-    els.sylTarget.textContent = s ? (s.min === s.max ? s.min : `${s.min}–${s.max}`) : "–";
-    els.matchSyl.disabled = !s;
+    updateSyl(lines);
   }
 
   function showError(msg) {
@@ -315,8 +359,8 @@ export function initSuggest(editor) {
     if (!model) return showError("Pick a model in AI settings.");
     refreshTarget();
     const { title, lines } = editor.context();
-    const s = editor.lineSyllables(lines[lineIndex] || "");
-    const syllables = els.matchSyl.checked && s ? (s.min === s.max ? String(s.min) : `${s.min} to ${s.max}`) : null;
+    const syllables = els.matchSyl.checked ? clampSyl(+els.sylCount.value) : null;
+    if (syllables) els.sylCount.value = syllables;
     const req = {
       title, topic: els.topic.value.trim(), lines, index: lineIndex, mode: mode(),
       syllables, rhymeWith: els.rhymeWith.value.trim(),
@@ -328,7 +372,7 @@ export function initSuggest(editor) {
     try {
       const list = await (p === "claude" ? askClaude : askGemini)({ key, model, user: buildPrompt(req), fast: els.fast.checked });
       if (!list.length) throw new Error("No suggestions came back. Try again.");
-      renderSuggestions(list, forIndex, forMode, s);
+      renderSuggestions(list, forIndex, forMode, syllables);
     } catch (err) {
       showError(err.message || String(err));
     } finally {
@@ -344,7 +388,7 @@ export function initSuggest(editor) {
       const li = document.createElement("li");
       const s = editor.lineSyllables(text);
       const count = s ? (s.min === s.max ? `${s.min}` : `${s.min}–${s.max}`) : "0";
-      const fits = targetSyl && s && s.max >= targetSyl.min && s.min <= targetSyl.max;
+      const fits = targetSyl && s && s.min <= targetSyl && targetSyl <= s.max;
       li.innerHTML = `<span class="syl ${fits ? "fits" : ""}" title="syllables">${count}</span><span class="text"></span>
         <span class="acts"><button type="button" data-act="use">${forMode === "rewrite" ? "Replace line" : "Insert below"}</button>
         <button type="button" data-act="copy">Copy</button></span>`;
@@ -360,8 +404,11 @@ export function initSuggest(editor) {
     const note = document.createElement("p");
     note.className = "hint small";
     note.textContent = forMode === "rewrite"
-      ? `Alternatives for line ${index + 1}. Numbers are syllable counts.`
-      : `Options for the line after line ${index + 1}. Numbers are syllable counts.`;
+      ? `Alternatives for line ${index + 1}.`
+      : `Options for the line after line ${index + 1}.`;
+    note.textContent += targetSyl
+      ? ` Numbers are syllable counts; highlighted ones hit ${targetSyl}.`
+      : " Numbers are syllable counts.";
     els.out.replaceChildren(note, ul);
   }
 

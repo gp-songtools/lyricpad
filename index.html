@@ -127,7 +127,15 @@
             <label><input type="radio" name="mode" id="modeNext"> Write the next line</label>
           </div>
 
-          <label class="check"><input type="checkbox" id="matchSyl" checked> <span>Match the syllable count (<span id="sylTarget">–</span>)</span></label>
+          <div class="syl-row">
+            <label class="check"><input type="checkbox" id="matchSyl" checked> <span>Syllables per line</span></label>
+            <div class="stepper">
+              <button type="button" id="sylDown" aria-label="One fewer syllable">−</button>
+              <input id="sylCount" type="number" min="1" max="40" step="1" inputmode="numeric" aria-label="Number of syllables">
+              <button type="button" id="sylUp" aria-label="One more syllable">+</button>
+            </div>
+            <button type="button" class="linkish" id="sylReset" hidden></button>
+          </div>
           <label class="field"><span>Should rhyme with <span class="muted">(optional)</span></span>
             <input id="rhymeWith" placeholder="e.g. tonight" autocomplete="off" spellcheck="false">
           </label>

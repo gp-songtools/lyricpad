@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lyricpad</title>
+  <meta name="description" content="A lyric editor with live syllable counts and a rhyme finder.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✎</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Lyricpad</h1>
+    <div class="status" id="status">Loading dictionary…</div>
+  </header>
+
+  <main class="layout">
+    <section class="panel editor-panel" aria-label="Lyrics editor">
+      <div class="panel-head">
+        <input id="title" class="song-title" placeholder="Untitled song" aria-label="Song title" spellcheck="false">
+        <div class="tools">
+          <button id="rhymeHere" title="Find rhymes for the selected word, or the last word of the line above (Alt+R)">Rhyme this word</button>
+          <button id="download" title="Download as a text file">Save .txt</button>
+        </div>
+      </div>
+      <div class="editor-scroll" id="editorScroll">
+        <div class="editor">
+          <div class="gutter" id="gutter" aria-hidden="true"></div>
+          <div class="text-wrap">
+            <div class="mirror" id="mirror" aria-hidden="true"></div>
+            <textarea id="lyrics" spellcheck="true" placeholder="Start writing…&#10;&#10;Each line gets a live syllable count on the left.&#10;Double-click any word to look up its rhymes."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="panel-foot" id="lineInfo">&nbsp;</div>
+    </section>
+
+    <section class="panel rhyme-panel" aria-label="Rhyme finder">
+      <form class="search" id="searchForm">
+        <input id="query" type="search" placeholder="Find rhymes for…" autocomplete="off" spellcheck="false" aria-label="Word to rhyme">
+        <button type="submit">Search</button>
+      </form>
+      <div class="options">
+        <label class="chip"><input type="checkbox" id="optPerfect" checked> Perfect</label>
+        <label class="chip"><input type="checkbox" id="optNear" checked> Near</label>
+        <label class="chip"><input type="checkbox" id="optAssonance"> Vowel match</label>
+        <label class="chip subtle"><input type="checkbox" id="optRare"> Rare words</label>
+        <select id="optSyl" aria-label="Filter by syllables">
+          <option value="">Any syllables</option>
+          <option value="1">1 syllable</option>
+          <option value="2">2 syllables</option>
+          <option value="3">3 syllables</option>
+          <option value="4">4+ syllables</option>
+        </select>
+      </div>
+      <div class="results" id="results">
+        <p class="hint">Search a word or short phrase (“phone me”), or double-click a word in your lyrics.</p>
+        <dl class="legend">
+          <dt>Perfect</dt><dd>same sounds from the stressed vowel on — <i>heart / start</i></dd>
+          <dt>Near</dt><dd>close but not exact — <i>heart / hard, time / mine</i></dd>
+          <dt>Vowel match</dt><dd>same vowel sounds, any consonants — <i>love / jump</i></dd>
+        </dl>
+        <p class="hint">Click a result to copy it.</p>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

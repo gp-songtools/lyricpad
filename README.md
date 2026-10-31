@@ -12,7 +12,22 @@ A small, fast lyric-writing app that runs entirely in the browser.
 - Click a result to copy it.
 - Your draft is saved automatically in your browser; “Save .txt” downloads it.
 
-No server, no API keys, works offline once loaded.
+- **Suggest lines** (optional, uses AI with your own API key) — pick a line in the editor, give a topic or feel, and ask for alternatives to that line or options for the next one. You can require a matching syllable count and a rhyme. Each suggestion shows its syllable count (checked locally); “Replace line” / “Insert below” drop it into the song, and Ctrl/Cmd+Z undoes.
+
+Everything except line suggestions runs offline in the browser, with no server and no API keys.
+
+## Line suggestions: providers and keys
+
+Open the **Suggest lines** tab → **AI settings**, choose a provider, and paste a key:
+
+| Provider | Get a key | Cost |
+|---|---|---|
+| Claude (Anthropic) | [console.anthropic.com](https://console.anthropic.com/settings/keys) | Pay per use from prepaid credit. Roughly 2¢ per request on Opus 5.5, 1¢ on Sonnet 5.5, 0.05¢ on Haiku 5.5. Set a monthly spend limit in the Console. |
+| Gemini (Google) | [aistudio.google.com](https://aistudio.google.com/apikey) | Free tier available (rate-limited; Google may use free-tier prompts to improve its products). |
+
+The key is stored only in your browser (localStorage, or sessionStorage if you untick “Remember key on this device”) and is sent only to the provider you chose. It is never part of this repository or the published site. Anyone with access to your browser profile could read it, so use “Forget key” on shared computers.
+
+Claude requests go through the official Anthropic TypeScript SDK, bundled at `vendor/anthropic-sdk-1.3.0.js` (MIT license) so the site doesn't depend on a CDN. Gemini requests use Google's REST API directly; the model list is fetched from your account so new Gemini models show up automatically.
 
 ## Running it locally
 
@@ -40,4 +55,4 @@ then open http://localhost:8000. (Opening `index.html` straight from disk won't 
 
 ## Credits
 
-Pronunciations: CMU Pronouncing Dictionary (BSD-style license). Word frequencies: hermitdave/FrequencyWords (CC BY-SA 4.0). Word list: SCOWL (permissive license).
+Pronunciations: CMU Pronouncing Dictionary (BSD-style license). Word frequencies: hermitdave/FrequencyWords (CC BY-SA 4.0). Word list: SCOWL (permissive license). Anthropic TypeScript SDK (MIT).

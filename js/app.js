@@ -1,4 +1,5 @@
 import { Lexicon, guessSyllables } from "./phonetics.js";
+import { initSuggest } from "./suggest.js";
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -94,6 +95,7 @@ function markCurrent() {
   if (rows[lastCurrent]) rows[lastCurrent].classList.remove("current");
   if (rows[i]) rows[i].classList.add("current");
   lastCurrent = i;
+  suggest?.refreshTarget();
 
   const s = lineData[i];
   const nonEmpty = lineData.filter(Boolean).length;
@@ -164,7 +166,7 @@ function options() {
   return { perfect: els.perfect.checked, near: els.near.checked, assonance: els.assonance.checked, rare: els.rare.checked };
 }
 
-function search() {
+let search = function () {
   const q = els.query.value.trim();
   if (!q) return;
   if (!lexicon) { pendingQuery = q; els.results.innerHTML = `<p class="hint">Loading dictionary…</p>`; return; }
@@ -289,6 +291,58 @@ function escapeHtml(s) {
 els.form.addEventListener("submit", (e) => { e.preventDefault(); search(); });
 for (const el of [els.perfect, els.near, els.assonance, els.rare, els.syl]) {
   el.addEventListener("change", () => { if (els.query.value.trim()) search(); else store.set("opts", { ...options(), syl: els.syl.value }); });
+}
+
+// ---------- tabs ----------
+const tabs = [[$("tabRhymes"), $("paneRhymes")], [$("tabSuggest"), $("paneSuggest")]];
+function showTab(btn) {
+  for (const [b, pane] of tabs) {
+    b.setAttribute("aria-selected", String(b === btn));
+    pane.hidden = b !== btn;
+  }
+  store.set("tab", btn.id);
+  if (btn.id === "tabSuggest") suggest.refreshTarget();
+}
+for (const [b] of tabs) b.addEventListener("click", () => showTab(b));
+// Looking up rhymes always brings the Rhymes tab forward.
+const _search = search;
+search = function () { if ($("paneRhymes").hidden) showTab($("tabRhymes")); _search(); };
+
+// ---------- line suggestions ----------
+// Replace a range of the textarea in a way that keeps the browser's undo history where possible.
+function replaceRange(start, end, text) {
+  const t = els.lyrics;
+  t.focus();
+  t.setSelectionRange(start, end);
+  if (!document.execCommand("insertText", false, text)) t.setRangeText(text, start, end, "end");
+  els.lyrics.dispatchEvent(new Event("input"));
+}
+function lineBounds(index) {
+  const lines = els.lyrics.value.split("\n");
+  let start = 0;
+  for (let i = 0; i < index; i++) start += lines[i].length + 1;
+  return { start, end: start + (lines[index] ?? "").length };
+}
+const suggest = initSuggest({
+  context: () => ({ title: els.title.value.trim(), lines: els.lyrics.value.split("\n") }),
+  currentLine: currentLineIndex,
+  lineSyllables,
+  replaceLine(index, text) {
+    const { start, end } = lineBounds(index);
+    replaceRange(start, end, text);
+    toast(`Replaced line ${index + 1}`);
+  },
+  insertAfter(index, text) {
+    const { end } = lineBounds(index);
+    replaceRange(end, end, "\n" + text);
+    toast(`Added line ${index + 2}`);
+  },
+  copy,
+  toast,
+});
+{
+  const saved = store.get("tab", "tabRhymes");
+  showTab($(saved) || $("tabRhymes"));
 }
 
 // ---------- start ----------

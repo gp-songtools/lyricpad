@@ -118,6 +118,60 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .word.rare { color: var(--muted); }
 .more { font-size: .78rem; margin-top: .3rem; padding: .2rem .55rem; }
 
+/* Tabs */
+.tabs { display: flex; border-bottom: 1px solid var(--line); padding: 0 .5rem; }
+.tabs button {
+  border: 0; border-radius: 0; background: none; padding: .7rem .8rem .6rem; font-size: .9rem; font-weight: 600;
+  color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+.pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pane[hidden] { display: none; }
+
+/* Suggest */
+.suggest-scroll { flex: 1; overflow: auto; padding: .75rem .9rem 1.5rem; display: flex; flex-direction: column; gap: .8rem; }
+.suggest-scroll > * { flex-shrink: 0; }
+.muted { color: var(--muted); font-weight: 400; }
+.field { display: flex; flex-direction: column; gap: .3rem; font-size: .82rem; font-weight: 600; }
+.field input, .field select {
+  border: 1px solid var(--line); border-radius: 8px; padding: .45rem .6rem; background: var(--bg);
+  font-size: .95rem; font-weight: 400; outline: none; min-width: 0;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.check { display: flex; align-items: center; gap: .4rem; font-size: .85rem; }
+.check input { accent-color: var(--accent); }
+.quote {
+  font-family: var(--font-text); font-size: 1.02rem; font-weight: 400; padding: .5rem .7rem;
+  border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; min-height: 2.3rem;
+}
+.quote.empty { color: var(--muted); font-style: italic; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: .85rem; }
+.seg label { position: relative; flex: 1; text-align: center; padding: .45rem .4rem; cursor: pointer; }
+.seg label + label { border-left: 1px solid var(--line); }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:has(input:checked) { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; padding: .55rem; }
+button.primary:hover { filter: brightness(1.08); color: #fff; }
+button:disabled { opacity: .55; cursor: default; }
+.settings { border: 1px solid var(--line); border-radius: 10px; padding: .5rem .75rem; }
+.settings summary { cursor: pointer; font-size: .88rem; font-weight: 600; }
+.settings-body { display: flex; flex-direction: column; gap: .6rem; padding-top: .7rem; }
+.settings-body button { align-self: flex-start; }
+.hint.small { font-size: .78rem; margin: 0; font-weight: 400; }
+.hint a { color: var(--accent); }
+.error { color: var(--over); font-size: .88rem; }
+.suggestions { list-style: none; margin: .4rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.suggestions li {
+  display: grid; grid-template-columns: auto 1fr; gap: .2rem .6rem; align-items: baseline;
+  padding: .55rem .6rem; border: 1px solid var(--line); border-radius: 8px;
+}
+.suggestions .syl { font-size: .75rem; font-variant-numeric: tabular-nums; color: var(--warn); min-width: 1.5rem; text-align: right; }
+.suggestions .syl.fits { color: var(--accent); font-weight: 700; }
+.suggestions .text { font-family: var(--font-text); font-size: 1.02rem; }
+.suggestions .acts { grid-column: 2; display: flex; gap: .4rem; }
+.suggestions .acts button { font-size: .75rem; padding: .2rem .55rem; }
+
 .toast {
   position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%) translateY(1rem);
   background: var(--ink); color: var(--bg); padding: .45rem .9rem; border-radius: 8px; font-size: .85rem;
@@ -130,6 +184,6 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   .layout { grid-template-columns: 1fr; padding: 0 .75rem .75rem; }
   .topbar { padding: .6rem .9rem; }
   .editor-panel { height: 62vh; }
-  .rhyme-panel { height: 75vh; }
+  .side-panel { height: 80vh; }
   .tools button:first-child { display: none; }
 }

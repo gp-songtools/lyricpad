@@ -35,7 +35,12 @@
       <div class="panel-foot" id="lineInfo">&nbsp;</div>
     </section>
 
-    <section class="panel rhyme-panel" aria-label="Rhyme finder">
+    <section class="panel side-panel" aria-label="Rhymes and suggestions">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tabRhymes" aria-selected="true" aria-controls="paneRhymes">Rhymes</button>
+        <button type="button" role="tab" id="tabSuggest" aria-selected="false" aria-controls="paneSuggest">Suggest lines</button>
+      </div>
+      <div class="pane" id="paneRhymes" role="tabpanel" aria-labelledby="tabRhymes">
       <form class="search" id="searchForm">
         <input id="query" type="search" placeholder="Find rhymes for…" autocomplete="off" spellcheck="false" aria-label="Word to rhyme">
         <button type="submit">Search</button>
@@ -61,6 +66,55 @@
           <dt>Vowel match</dt><dd>same vowel sounds, any consonants — <i>love / jump</i></dd>
         </dl>
         <p class="hint">Click a result to copy it.</p>
+      </div>
+      </div>
+
+      <div class="pane" id="paneSuggest" role="tabpanel" aria-labelledby="tabSuggest" hidden>
+        <div class="suggest-scroll">
+          <details class="settings" id="aiSettings">
+            <summary>AI settings <span class="muted">· <span id="aiSummary">not set up</span></span></summary>
+            <div class="settings-body">
+              <label class="field">Provider
+                <select id="aiProvider">
+                  <option value="claude">Claude (Anthropic)</option>
+                  <option value="gemini">Gemini (Google)</option>
+                </select>
+              </label>
+              <label class="field">API key
+                <input id="aiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your key">
+              </label>
+              <p class="hint small" id="aiKeyHelp"></p>
+              <label class="field">Model
+                <select id="aiModel"></select>
+              </label>
+              <label class="check"><input type="checkbox" id="aiRemember" checked> <span>Remember key on this device</span></label>
+              <p class="hint small">Your key is stored only in this browser and sent only to the provider you picked. Untick “remember” to have it forgotten when you close the tab.</p>
+              <button type="button" id="aiForget">Forget key</button>
+            </div>
+          </details>
+
+          <label class="field">Topic / feel
+            <input id="topic" placeholder="e.g. leaving a small town, bittersweet" autocomplete="off">
+          </label>
+
+          <div class="field">
+            <span>Selected line <span class="muted" id="targetNum"></span></span>
+            <div class="quote" id="targetText"></div>
+          </div>
+
+          <div class="seg" role="radiogroup" aria-label="What to suggest">
+            <label><input type="radio" name="mode" id="modeRewrite" checked> Rewrite this line</label>
+            <label><input type="radio" name="mode" id="modeNext"> Write the next line</label>
+          </div>
+
+          <label class="check"><input type="checkbox" id="matchSyl" checked> <span>Match the syllable count (<span id="sylTarget">–</span>)</span></label>
+          <label class="field"><span>Should rhyme with <span class="muted">(optional)</span></span>
+            <input id="rhymeWith" placeholder="e.g. tonight" autocomplete="off" spellcheck="false">
+          </label>
+
+          <button type="button" class="primary" id="suggestBtn">Suggest lines</button>
+          <div id="suggestOut" aria-live="polite"></div>
+        </div>
       </div>
     </section>
   </main>

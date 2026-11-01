@@ -43,6 +43,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .topbar { display: flex; align-items: baseline; gap: 1rem; padding: .75rem 1.25rem; }
 .topbar h1 { margin: 0; font-family: var(--font-text); font-size: 1.4rem; font-weight: 600; letter-spacing: .01em; }
 .status { color: var(--muted); font-size: .85rem; }
+.site-foot { padding: 0 1.25rem .9rem; font-size: .75rem; color: var(--muted); text-align: center; }
+.site-foot a { color: var(--muted); }
 .theme-btn { margin-left: auto; align-self: center; font-size: .78rem; padding: .25rem .65rem; border-radius: 999px; }
 
 .layout {

@@ -7,16 +7,20 @@
   <meta name="description" content="A lyric editor with live syllable counts and a rhyme finder.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✎</text></svg>">
   <script>
-    // Apply the saved Light/Dark choice before the page draws, so it doesn't flash.
-    try { const t = localStorage.getItem("lyricpad:theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}
+    // Apply the theme before the page draws, so it doesn't flash. Light unless changed.
+    (function () {
+      let t = "light";
+      try { t = localStorage.getItem("lyricpad:theme") || "light"; } catch {}
+      if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
+    })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=a82f8242">
+  <link rel="stylesheet" href="css/style.css?v=b3fa9517">
 </head>
 <body>
   <header class="topbar">
     <h1>Lyricpad</h1>
     <div class="status" id="status">Loading dictionary…</div>
-    <button type="button" id="themeBtn" class="theme-btn" title="Switch between automatic, light and dark colours">Theme: Auto</button>
+    <button type="button" id="themeBtn" class="theme-btn" title="Switch between light, dark and automatic (follow your device) colours">Theme: Light</button>
   </header>
 
   <main class="layout">
@@ -177,6 +181,6 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=a82f8242"></script>
+  <script type="module" src="js/app.js?v=b3fa9517"></script>
 </body>
 </html>

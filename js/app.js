@@ -1,9 +1,9 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=a82f8242";
-import { initSuggest } from "./suggest.js?v=a82f8242";
-import { initThesaurus } from "./thesaurus.js?v=a82f8242";
-import { initDrive } from "./drive.js?v=a82f8242";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=b3fa9517";
+import { initSuggest } from "./suggest.js?v=b3fa9517";
+import { initThesaurus } from "./thesaurus.js?v=b3fa9517";
+import { initDrive } from "./drive.js?v=b3fa9517";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -337,10 +337,10 @@ for (const el of [els.perfect, els.near, els.assonance, els.rare, els.syl]) {
 }
 
 // ---------- theme ----------
-// Auto follows the device's light/dark setting; Light or Dark override it on this device.
+// Light by default; Dark, or Auto (follow the device's setting), can be picked per device.
 {
   const btn = $("themeBtn");
-  const order = ["auto", "light", "dark"];
+  const order = ["light", "dark", "auto"];
   const label = { auto: "Theme: Auto", light: "Theme: Light", dark: "Theme: Dark" };
   const current = () => document.documentElement.dataset.theme || "auto";
   btn.textContent = label[current()];
@@ -348,7 +348,7 @@ for (const el of [els.perfect, els.near, els.assonance, els.rare, els.syl]) {
     const next = order[(order.indexOf(current()) + 1) % order.length];
     if (next === "auto") delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = next;
-    try { next === "auto" ? localStorage.removeItem("lyricpad:theme") : localStorage.setItem("lyricpad:theme", next); } catch { /* ignore */ }
+    try { localStorage.setItem("lyricpad:theme", next); } catch { /* ignore */ }
     btn.textContent = label[next];
   });
 }

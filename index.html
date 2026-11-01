@@ -6,12 +6,17 @@
   <title>Lyricpad</title>
   <meta name="description" content="A lyric editor with live syllable counts and a rhyme finder.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✎</text></svg>">
-  <link rel="stylesheet" href="css/style.css?v=669b5331">
+  <script>
+    // Apply the saved Light/Dark choice before the page draws, so it doesn't flash.
+    try { const t = localStorage.getItem("lyricpad:theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}
+  </script>
+  <link rel="stylesheet" href="css/style.css?v=a82f8242">
 </head>
 <body>
   <header class="topbar">
     <h1>Lyricpad</h1>
     <div class="status" id="status">Loading dictionary…</div>
+    <button type="button" id="themeBtn" class="theme-btn" title="Switch between automatic, light and dark colours">Theme: Auto</button>
   </header>
 
   <main class="layout">
@@ -172,6 +177,6 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=669b5331"></script>
+  <script type="module" src="js/app.js?v=a82f8242"></script>
 </body>
 </html>

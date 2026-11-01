@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lyricpad Help</title>
+  <meta name="description" content="How to use Lyricpad: syllable counts, rhymes, thesaurus, AI line suggestions and saving songs.">
+  <style>
+    :root {
+      --bg: #f6f4ef; --panel: #fffdf9; --ink: #23201b; --muted: #6f685d; --line: #e4ded3;
+      --accent: #b4532a; --accent-soft: #f6e3d8; --code: #ece7de; color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root[data-theme="auto"] {
+        --bg: #171614; --panel: #201e1b; --ink: #ece6dc; --muted: #9a9286; --line: #34312c;
+        --accent: #e08a5f; --accent-soft: #3a2a21; --code: #2b2824; color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #171614; --panel: #201e1b; --ink: #ece6dc; --muted: #9a9286; --line: #34312c;
+      --accent: #e08a5f; --accent-soft: #3a2a21; --code: #2b2824; color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 760px; margin: 0 auto; padding: 28px 16px 72px; }
+    h1, h2 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+    h1 { font-size: 2.1rem; margin: .5rem 0 .25rem; }
+    h2 { font-size: 1.35rem; margin: 2.4rem 0 .5rem; scroll-margin-top: 16px; }
+    h3 { font-size: 1rem; margin: 1.4rem 0 .3rem; }
+    p.lede { color: var(--muted); margin: 0 0 1.5rem; font-size: 1.05rem; }
+    a { color: var(--accent); }
+    ul, ol { padding-left: 1.3rem; }
+    li { margin: .3rem 0; }
+    kbd {
+      font: .82em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--panel);
+      border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: .05em .4em;
+    }
+    .btn { font-weight: 600; white-space: nowrap; }
+    .back { display: inline-block; margin-bottom: .5rem; }
+    nav.toc {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: .8rem 1rem;
+      display: flex; flex-wrap: wrap; gap: .35rem .9rem; font-size: .92rem;
+    }
+    .tip {
+      background: var(--accent-soft); border-radius: 10px; padding: .7rem .9rem; margin: 1rem 0; font-size: .95rem;
+    }
+    .example {
+      font-family: "Iowan Old Style", Palatino, Georgia, serif; background: var(--panel); border: 1px solid var(--line);
+      border-radius: 10px; padding: .6rem .9rem; display: grid; grid-template-columns: 3rem 1fr; gap: 0 .6rem; margin: .8rem 0;
+    }
+    .example .n { font: .8rem system-ui, sans-serif; color: var(--muted); text-align: right; padding-top: .25rem; font-variant-numeric: tabular-nums; }
+    table { border-collapse: collapse; width: 100%; font-size: .95rem; margin: .5rem 0; }
+    th, td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    footer { margin-top: 3rem; font-size: .85rem; color: var(--muted); }
+  </style>
+  <script>
+    // Match the theme chosen in the app.
+    (function () {
+      let t = "light";
+      try { t = localStorage.getItem("lyricpad:theme") || "light"; } catch {}
+      document.documentElement.dataset.theme = t === "dark" || t === "auto" ? t : "light";
+    })();
+  </script>
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Back to Lyricpad</a>
+  <h1>Lyricpad Help</h1>
+  <p class="lede">Lyricpad is a lyric editor that counts syllables as you type and helps you find rhymes, synonyms and fresh lines. Here's how each part works.</p>
+
+  <nav class="toc" aria-label="Contents">
+    <a href="#start">Quick start</a>
+    <a href="#syllables">Syllable counts</a>
+    <a href="#rhymes">Rhymes</a>
+    <a href="#thesaurus">Thesaurus</a>
+    <a href="#suggest">Suggest lines (AI)</a>
+    <a href="#saving">Saving songs</a>
+    <a href="#keys">Shortcuts</a>
+    <a href="#faq">Questions</a>
+  </nav>
+
+  <h2 id="start">Quick start</h2>
+  <ol>
+    <li>Give your song a title (top of the editor) and start writing. Each line shows its syllable count on the left.</li>
+    <li>Need a rhyme? Double-click the word in your lyrics, or type it into the <b>Rhymes</b> search box.</li>
+    <li>Need a better word? Open the <b>Thesaurus</b> tab and double-click a word in your lyrics.</li>
+    <li>Stuck on a line? The <b>Suggest lines</b> tab asks an AI for ideas (needs your own API key).</li>
+    <li>Press <span class="btn">Save</span> to keep the song in your Google Drive, or <span class="btn">Export .txt</span> to download it.</li>
+  </ol>
+  <div class="tip">On a phone the editor is at the top and the Rhymes / Thesaurus / Suggest lines tabs are below it. Tip: add Lyricpad to your home screen from your browser's share menu so it opens like an app.</div>
+
+  <h2 id="syllables">Syllable counts</h2>
+  <p>Every line gets a live count in the left margin. The line you're on is highlighted, and the bar under the editor shows its number and count.</p>
+  <div class="example" aria-hidden="true">
+    <span class="n"></span><span>[Chorus]</span>
+    <span class="n">10</span><span>I packed the car before the sun came up</span>
+    <span class="n">6–7</span><span>The fire burned out tonight</span>
+    <span class="n">4?</span><span>Skrrting past the lights</span>
+  </div>
+  <ul>
+    <li><b>Ranges like 6–7</b> mean a word can be sung either way, e.g. <i>fire</i> (1 or 2) or <i>every</i> (2 or 3). Pick whichever fits your melody.</li>
+    <li><b>A “?”</b> means a word isn't in the dictionary, so its count is an estimate.</li>
+    <li><b>[Square brackets]</b> are for section tags like <i>[Verse 1]</i>, <i>[Chorus]</i> or <i>[x2]</i>. They're never counted, wherever they appear in a line.</li>
+    <li>On a computer, hover over a count to see how each word was counted.</li>
+    <li>Lyric spellings like <i>runnin'</i>, <i>goin'</i> and <i>'cause</i> are understood.</li>
+  </ul>
+
+  <h2 id="rhymes">Rhymes</h2>
+  <p>Look up a word in any of these ways:</p>
+  <ul>
+    <li>Type a word, or a short phrase like <i>phone me</i>, into the search box on the <b>Rhymes</b> tab.</li>
+    <li>Double-click a word in your lyrics.</li>
+    <li>On a computer, put the cursor on a word and press <kbd>Alt</kbd>+<kbd>R</kbd> or the <span class="btn">Rhyme this word</span> button. On a blank line, this rhymes the last word of the line above, which is handy right after you press Enter.</li>
+  </ul>
+  <p>Choose which kinds of rhyme you want:</p>
+  <table>
+    <tr><th>Option</th><th>What it finds</th><th>Example</th></tr>
+    <tr><td><b>Perfect</b></td><td>The same sounds from the stressed vowel to the end</td><td><i>heart → start, apart</i></td></tr>
+    <tr><td><b>Near</b></td><td>Slant rhymes: close, but not exact</td><td><i>heart → hard, dark</i>; <i>time → mine</i></td></tr>
+    <tr><td><b>Vowel match</b></td><td>Same vowel sounds, any consonants</td><td><i>love → jump</i></td></tr>
+  </table>
+  <p>Results are grouped by syllable count. Use the <b>syllables</b> filter to show only one length, and tick <b>Rare words</b> to include unusual ones. Tap a result to copy it.</p>
+
+  <h2 id="thesaurus">Thesaurus</h2>
+  <p>Find a word that means the right thing, and optionally lands the rhyme too.</p>
+  <ul>
+    <li>Open the <b>Thesaurus</b> tab, then double-click a word in your lyrics (or press <kbd>Alt</kbd>+<kbd>T</kbd>, or tap <span class="btn">Use selected word</span>). You can also just type a word.</li>
+    <li>Synonyms are grouped by meaning, with a short definition for each, followed by a longer list of related words. Small numbers show each word's syllables.</li>
+    <li><b>Tap a synonym to swap it into your lyrics</b> in place of the word you looked up. Capital letters are kept, and <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Z</kbd> undoes it.</li>
+    <li>Fill in <b>Must rhyme with</b> to see only synonyms that rhyme with another word. For example, synonyms of <i>sad</i> that rhyme with <i>dawn</i> include <i>withdrawn</i> and <i>forlorn</i>. Near rhymes are shown in italics. Words under <b>further afield</b> are synonyms of synonyms, so check the meaning still fits.</li>
+  </ul>
+
+  <h2 id="suggest">Suggest lines (AI)</h2>
+  <p>Ask an AI for ideas for a line. It's optional, and it uses your own API key.</p>
+  <h3>One-time setup</h3>
+  <ol>
+    <li>Open the <b>Suggest lines</b> tab and expand <b>AI settings</b>.</li>
+    <li>Choose a provider and paste a key:
+      <ul>
+        <li><b>Gemini (Google)</b>: free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a>. The free tier has rate limits.</li>
+        <li><b>Claude (Anthropic)</b>: key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Paid per use, roughly 0.05¢–2¢ per request depending on the model.</li>
+      </ul>
+    </li>
+    <li>Pick a model. Your key stays in your browser and is only sent to the provider you chose.</li>
+  </ol>
+  <h3>Getting suggestions</h3>
+  <ol>
+    <li>Click a line in your lyrics. It appears under <b>Selected line</b>.</li>
+    <li>Optionally describe the <b>Topic / feel</b>, e.g. <i>leaving a small town, bittersweet</i>.</li>
+    <li>Choose <b>Rewrite this line</b> (alternatives for it) or <b>Write the next line</b> (what could come after it).</li>
+    <li><b>Syllables per line</b> starts at the selected line's count. Type a number or use − / + to change it, or untick it for no limit.</li>
+    <li><b>Should rhyme with</b>: in “Write the next line” mode it's ticked and filled with the last word of your line. Type your own word, or untick it for no rhyme.</li>
+    <li>Press <span class="btn">Suggest lines</span>. Each idea shows its real syllable count, highlighted when it hits your number. Use <span class="btn">Replace line</span>, <span class="btn">Insert below</span> or <span class="btn">Copy</span>.</li>
+  </ol>
+  <div class="tip"><b>Fast mode</b> (on by default) makes the AI answer much quicker by thinking less. Untick it when you want more considered lines and don't mind waiting.</div>
+
+  <h2 id="saving">Saving songs</h2>
+  <ul>
+    <li><b>Automatically in your browser:</b> the song you're working on is kept on this device, so closing the tab won't lose it. It isn't shared between devices, though.</li>
+    <li><span class="btn">Save</span> (or <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd>) stores the song in a <b>Lyricpad</b> folder in your Google Drive. The first time, you sign in with Google and allow access. Lyricpad can only see files it creates, nothing else in your Drive. After that, changes save automatically a few seconds after you stop typing, and the bar under the editor shows “Saved to Drive”.</li>
+    <li><span class="btn">Songs</span> lists your saved songs to open on any device, and starts a <b>New song</b>.</li>
+    <li><span class="btn">Export .txt</span> downloads the song as a text file.</li>
+    <li>If you edit the same song on two devices, Lyricpad notices, stops auto-saving, and asks before overwriting the other version.</li>
+  </ul>
+
+  <h2 id="keys">Keyboard shortcuts</h2>
+  <table>
+    <tr><th>Keys</th><th>Does</th></tr>
+    <tr><td>Double-click a word</td><td>Rhymes for it (or synonyms, if the Thesaurus tab is open)</td></tr>
+    <tr><td><kbd>Alt</kbd>+<kbd>R</kbd></td><td>Rhymes for the word at the cursor</td></tr>
+    <tr><td><kbd>Alt</kbd>+<kbd>T</kbd></td><td>Synonyms for the word at the cursor</td></tr>
+    <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd></td><td>Save to Google Drive</td></tr>
+    <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Z</kbd></td><td>Undo, including swapped-in synonyms and inserted suggestions</td></tr>
+  </table>
+
+  <h2 id="faq">Questions</h2>
+  <h3>A syllable count looks wrong.</h3>
+  <p>Counts come from a pronunciation dictionary, so they match how a word is usually spoken. Singers often stretch or squeeze words, and ranges like 6–7 show the common alternatives. A “?” means the word was guessed from its spelling.</p>
+  <h3>The page looks broken or out of date after an update.</h3>
+  <p>Reload the page. If that doesn't help, do a hard refresh: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>, or <kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> on a Mac. On a phone, close the tab and open it again.</p>
+  <h3>Google says the app isn't verified.</h3>
+  <p>That can appear until Google finishes checking the app. It's safe to continue: Lyricpad only gets access to the song files it creates in your Drive.</p>
+  <h3>Can I change the colours?</h3>
+  <p>Use the <span class="btn">Theme</span> button at the top right: Light, Dark, or Auto (follows your device).</p>
+
+  <footer><a href="./">Back to Lyricpad</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></footer>
+</main>
+</body>
+</html>

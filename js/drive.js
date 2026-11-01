@@ -5,7 +5,7 @@
 // The access token lives in memory (and sessionStorage, so a reload within the hour
 // doesn't need another sign-in); nothing is sent anywhere except Google.
 
-import { GOOGLE_CLIENT_ID } from "./config.js?v=8e8d5fb8";
+import { GOOGLE_CLIENT_ID } from "./config.js?v=3748d1be";
 
 const SCOPE = "https://www.googleapis.com/auth/drive.file";
 const FOLDER_NAME = "Lyricpad";

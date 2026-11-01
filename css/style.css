@@ -45,7 +45,12 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .status { color: var(--muted); font-size: .85rem; }
 .site-foot { padding: 0 1.25rem .9rem; font-size: .75rem; color: var(--muted); text-align: center; }
 .site-foot a { color: var(--muted); }
-.theme-btn { margin-left: auto; align-self: center; font-size: .78rem; padding: .25rem .65rem; border-radius: 999px; }
+.help-link {
+  margin-left: auto; align-self: center; font-size: .78rem; font-weight: 600; text-decoration: none;
+  color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: .25rem .7rem; white-space: nowrap;
+}
+.help-link:hover { background: var(--accent-soft); }
+.theme-btn { white-space: nowrap; align-self: center; font-size: .78rem; padding: .25rem .65rem; border-radius: 999px; }
 
 .layout {
   flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr);
@@ -272,8 +277,11 @@ button:disabled { opacity: .55; cursor: default; }
 @media (max-width: 800px) {
   body { height: auto; }
   .layout { grid-template-columns: 1fr; padding: 0 .75rem .75rem; }
-  .topbar { padding: .6rem .9rem; }
+  .topbar { padding: .6rem .9rem; gap: .6rem; }
   .editor-panel { height: 62vh; }
   .side-panel { height: 80vh; }
   .tools button:first-child { display: none; }
+}
+@media (max-width: 480px) {
+  .topbar .status { display: none; }
 }

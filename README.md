@@ -27,7 +27,7 @@ Google only lets a website use Drive after the site is registered with Google Cl
 3. **Google Auth Platform** (called **OAuth consent screen** in some versions of the console) → **Get started**: app name “Lyricpad”, your email as support and contact email, audience **External**.
 4. **Audience → Test users**: add your own Google account (and anyone else who'll use your copy). Leave the app in **Testing**.
 5. **Data access → Add or remove scopes**: add `https://www.googleapis.com/auth/drive.file` (“See, edit, create, and delete only the specific Google Drive files you use with this app”).
-6. **Clients → Create client**: type **Web application**. Under **Authorized JavaScript origins** add `https://pcarenza.github.io` (and `http://localhost:8000` if you run it locally). No redirect URIs are needed.
+6. **Clients → Create client**: type **Web application**. Under **Authorized JavaScript origins** add `https://gp-songtools.github.io` (and `http://localhost:8000` if you run it locally). No redirect URIs are needed.
 7. Copy the **Client ID** (ends in `.apps.googleusercontent.com`) and put it in `js/config.js`, or paste it into the **Songs** dialog in each browser you use.
 
 The client ID isn't a secret: Google only accepts it from the origins listed in step 6. The first time you connect, Google may warn that the app isn't verified (it's your own app in Testing) — choose **Continue**.
@@ -68,6 +68,8 @@ tools/stamp-version.sh
 1. Push this repository to GitHub.
 2. In the repo, go to **Settings → Pages**, set **Source** to “Deploy from a branch”, branch `main`, folder `/ (root)`.
 3. After a minute the app is live at `https://<your-username>.github.io/<repo-name>/`.
+
+This copy lives at **https://gp-songtools.github.io/lyricpad/**.
 
 ## How it works
 

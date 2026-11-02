@@ -59,7 +59,7 @@ then open http://localhost:8000. (Opening `index.html` straight from disk won't 
 
 ## Making changes
 
-Every script and stylesheet the page loads carries a version stamp (`?v=…`) so browsers never mix new files with stale cached ones after an update. Before committing changes to `index.html`, `js/`, `css/` or `data/`, run:
+Every script and stylesheet the page loads carries a version stamp (`?v=…`) so browsers never mix new files with stale cached ones after an update. The same version (plus the date it last changed) is shown in the page footer; click it to check whether a newer version has been published. Before committing changes to `index.html`, `js/`, `css/` or `data/`, run:
 
 ```bash
 tools/stamp-version.sh

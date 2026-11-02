@@ -1,9 +1,9 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=db5e506e";
-import { initSuggest } from "./suggest.js?v=db5e506e";
-import { initThesaurus } from "./thesaurus.js?v=db5e506e";
-import { initDrive } from "./drive.js?v=db5e506e";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=6551891e";
+import { initSuggest } from "./suggest.js?v=6551891e";
+import { initThesaurus } from "./thesaurus.js?v=6551891e";
+import { initDrive } from "./drive.js?v=6551891e";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -334,6 +334,29 @@ function escapeHtml(s) {
 els.form.addEventListener("submit", (e) => { e.preventDefault(); search(); });
 for (const el of [els.perfect, els.near, els.assonance, els.rare, els.syl]) {
   el.addEventListener("change", () => { if (els.query.value.trim()) search(); else store.set("opts", { ...options(), syl: els.syl.value }); });
+}
+
+// ---------- version ----------
+// The footer shows which version of the site this page is. Clicking it asks the server for the
+// live page and says whether a newer version has been published.
+{
+  const btn = $("version");
+  btn?.addEventListener("click", async () => {
+    const running = btn.dataset.build;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`index.html?check=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(res.status);
+      const live = (await res.text()).match(/data-build="([0-9a-f]+)"/)?.[1];
+      if (!live) throw new Error("no version found");
+      toast(live === running
+        ? `You have the latest version (${running}).`
+        : `A newer version (${live}) is published. Reload the page to get it — hard refresh if it doesn't change.`);
+    } catch {
+      toast("Couldn't check for a newer version. Are you offline?");
+    }
+    btn.disabled = false;
+  });
 }
 
 // ---------- theme ----------

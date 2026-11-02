@@ -14,7 +14,7 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=9d388813">
+  <link rel="stylesheet" href="css/style.css?v=db5e506e">
 </head>
 <body>
   <header class="topbar">
@@ -162,6 +162,10 @@
             <input id="rhymeWith" placeholder="e.g. tonight" autocomplete="off" spellcheck="false" aria-label="Word the suggestions should rhyme with">
             <button type="button" class="linkish" id="rhymeReset" hidden></button>
           </div>
+          <div class="reword-row" id="rewordRow">
+            <label class="check"><input type="checkbox" id="rewordOn"> <span>Try to reword this line to fit the rhyme</span></label>
+            <p class="hint small" id="rewordNote"></p>
+          </div>
 
           <label class="check" title="Less thinking before answering: much quicker, slightly less polished"><input type="checkbox" id="aiFast" checked> <span>Fast mode <span class="muted">— less thinking, quicker answers</span></span></label>
           <button type="button" class="primary" id="suggestBtn">Suggest lines</button>
@@ -195,6 +199,6 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=9d388813"></script>
+  <script type="module" src="js/app.js?v=db5e506e"></script>
 </body>
 </html>

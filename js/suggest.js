@@ -13,7 +13,7 @@ const SDK_URL = new URL("../vendor/anthropic-sdk-1.3.0.js", import.meta.url).hre
 
 const SYSTEM_PROMPT = `You are a lyric-writing collaborator helping a songwriter. You suggest lines they might use, in the voice, tone and point of view of the song so far.
 
-Write lines that sound sung, not written: concrete images, natural word stress, plain words over fancy ones, no clichés unless twisted. Each suggestion should be a genuinely different idea, not small rewordings of one line.
+Write lines that sound sung, not written: concrete images, natural word stress, plain words over fancy ones, no clichés unless twisted. Unless asked to reword a line, each suggestion should be a genuinely different idea, not small rewordings of one line. When asked to reword a line, keep its meaning, imagery and tone and change only the phrasing.
 
 When a syllable count is requested, count carefully and hit it exactly - the songwriter is fitting the line to a melody. When a rhyme is requested, end the line on a word that rhymes (a near rhyme is acceptable if it sings well). When a line must begin or end with given words, use those words exactly as written and count them in the syllable total.
 
@@ -165,14 +165,18 @@ function parseSuggestions(text) {
 }
 
 // ---------- prompt ----------
-function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith, startsWith, endsWith }) {
+function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith, startsWith, endsWith, reword }) {
   const marked = lines.map((l, i) => (i === index ? `${l}    <<< SELECTED LINE` : l)).join("\n");
   const target = lines[index] ?? "";
   const parts = [];
   if (title) parts.push(`Song title: ${title}`);
   if (topic) parts.push(`Topic / feel: ${topic}`);
   parts.push(`Lyrics so far (text in [brackets] marks song sections and isn't sung):\n<lyrics>\n${marked || "(empty)"}\n</lyrics>`);
-  if (mode === "rewrite") {
+  // "Reword to fit the rhyme": keep the line's meaning, change only the wording so it ends on the rhyme.
+  const rewording = mode === "rewrite" && reword && rhymeWith && target.trim();
+  if (rewording) {
+    parts.push(`Suggest 6 ways to reword the selected line: "${target}". Keep its meaning, imagery and tone as close to the original as you can and add no new ideas, but change the wording so the line ends on a word that rhymes with "${rhymeWith}".`);
+  } else if (mode === "rewrite") {
     parts.push(target.trim()
       ? `Suggest 6 alternative versions of the selected line: "${target}". Keep its role in the song but try different images and wording.`
       : "The selected line is empty. Suggest 6 lines that could go there, fitting the lines around it.");
@@ -182,7 +186,7 @@ function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith, s
   if (startsWith) parts.push(`Each line must begin with the words "${startsWith}", exactly as written, and then carry on from there.`);
   if (endsWith) parts.push(`Each line must end with the words "${endsWith}", exactly as written, with the rest of the line leading into them.`);
   if (syllables) parts.push(`Each line must have exactly ${syllables} syllables.`);
-  if (rhymeWith) parts.push(`Each line must end on a word that rhymes with "${rhymeWith}".`);
+  if (rhymeWith && !rewording) parts.push(`Each line must end on a word that rhymes with "${rhymeWith}".`);
   return parts.join("\n\n");
 }
 
@@ -198,7 +202,7 @@ export function initSuggest(editor) {
     settings: $("aiSettings"), provider: $("aiProvider"), key: $("aiKey"), model: $("aiModel"),
     remember: $("aiRemember"), forget: $("aiForget"), keyHelp: $("aiKeyHelp"), summary: $("aiSummary"),
     topic: $("topic"), targetNum: $("targetNum"), targetText: $("targetText"), matchSyl: $("matchSyl"),
-    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), rhymeOn: $("rhymeOn"), rhymeReset: $("rhymeReset"),
+    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), rhymeOn: $("rhymeOn"), rhymeReset: $("rhymeReset"), rewordOn: $("rewordOn"), rewordRow: $("rewordRow"), rewordNote: $("rewordNote"),
     startOn: $("startOn"), startWith: $("startWith"), endOn: $("endOn"), endWith: $("endWith"), endNote: $("endNote"), rhymeRow: $("rhymeRow"), go: $("suggestBtn"), out: $("suggestOut"),
     modeRewrite: $("modeRewrite"), modeNext: $("modeNext"), fast: $("aiFast"),
   };
@@ -405,6 +409,43 @@ export function initSuggest(editor) {
   }
   updateAffix();
 
+  // ---- reword to fit the rhyme ----
+  // In "Rewrite this line", this keeps the line's meaning and only changes its wording so it ends
+  // on the rhyme word. With a topic there are new ideas to bring in, so a topic switches it off
+  // (as do an empty line and a fixed ending, which leave nothing to reword).
+  let rewordPref = false;
+  function rewordBlocked(lines) {
+    if (els.topic.value.trim()) return "Not available while there's a Topic / feel — clear it to use this.";
+    if (!(lines[lineIndex] || "").trim()) return "Select a line that has words in it.";
+    if (endValue()) return "Not available while “Line ends with” is on.";
+    return "";
+  }
+  function updateReword() {
+    const why = rewordBlocked(editor.context().lines);
+    els.rewordRow.hidden = mode() !== "rewrite";
+    els.rewordOn.disabled = !!why;
+    els.rewordOn.checked = rewordPref && !why;
+    els.rewordRow.classList.toggle("off", !!why);
+    els.rewordNote.textContent = why || "Keeps its meaning and changes the wording so the line ends on the rhyme word.";
+  }
+  els.rewordOn.addEventListener("change", () => {
+    rewordPref = els.rewordOn.checked;
+    if (!rewordPref) return;
+    els.rhymeOn.checked = true;
+    if (!els.rhymeWith.value.trim()) {
+      // Suggest the last word of the line above (a couplet); the box stays editable.
+      const guess = lastWord(editor.context().lines, lineIndex - 1);
+      if (guess) { els.rhymeWith.value = guess; rhymeCustom = true; }
+    }
+    updateRhyme(editor.context().lines);
+    if (!els.rhymeWith.value.trim()) els.rhymeWith.focus();
+  });
+  els.rhymeOn.addEventListener("change", () => { if (!els.rhymeOn.checked) rewordPref = false; updateReword(); });
+  for (const el of [els.modeNext, els.modeRewrite]) el.addEventListener("change", updateReword);
+  for (const el of [els.topic, els.endWith]) el.addEventListener("input", updateReword);
+  els.endOn.addEventListener("change", updateReword);
+  updateReword();
+
   function refreshTarget() {
     const { lines } = editor.context();
     lineIndex = Math.min(editor.currentLine(), lines.length - 1);
@@ -414,6 +455,7 @@ export function initSuggest(editor) {
     els.targetText.classList.toggle("empty", !text.trim());
     updateSyl(lines);
     updateRhyme(lines);
+    updateReword();
   }
 
   function showError(msg) {
@@ -433,9 +475,12 @@ export function initSuggest(editor) {
     const { title, lines } = editor.context();
     const syllables = els.matchSyl.checked ? clampSyl(+els.sylCount.value) : null;
     if (syllables) els.sylCount.value = syllables;
+    const reword = mode() === "rewrite" && els.rewordOn.checked && !els.rewordOn.disabled;
+    const rhymeWord = els.rhymeOn.checked && !endValue() ? els.rhymeWith.value.trim() : "";
+    if (reword && !rhymeWord) { els.rhymeWith.focus(); return showError("Type the word to rhyme with first."); }
     const req = {
       title, topic: els.topic.value.trim(), lines, index: lineIndex, mode: mode(),
-      syllables, rhymeWith: els.rhymeOn.checked && !endValue() ? els.rhymeWith.value.trim() : "",
+      syllables, rhymeWith: rhymeWord, reword,
       startsWith: startValue(), endsWith: endValue(),
     };
     const forIndex = lineIndex, forMode = mode();

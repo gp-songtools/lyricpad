@@ -14,7 +14,7 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=f828c89a">
+  <link rel="stylesheet" href="css/style.css?v=101aaaaa">
 </head>
 <body>
   <header class="topbar">
@@ -146,7 +146,7 @@
           <div class="rhyme-row">
             <label class="check"><input type="checkbox" id="endOn"> <span>Line ends with</span></label>
             <input id="endWith" placeholder="e.g. in the morning light" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Words the line should end with">
-            <p class="hint small affix-note" id="endNote" hidden>The ending is fixed, so “Should rhyme with” is skipped.</p>
+            <p class="hint small affix-note" id="endNote" hidden>The ending is fixed, so the rhyme is skipped.</p>
           </div>
           <div class="syl-row">
             <label class="check"><input type="checkbox" id="matchSyl" checked> <span>Syllables per line</span></label>
@@ -158,9 +158,9 @@
             <button type="button" class="linkish" id="sylReset" hidden></button>
           </div>
           <div class="rhyme-row" id="rhymeRow">
-            <label class="check"><input type="checkbox" id="rhymeOn"> <span>Should rhyme with</span></label>
-            <input id="rhymeWith" placeholder="e.g. tonight" autocomplete="off" spellcheck="false" aria-label="Word the suggestions should rhyme with">
-            <button type="button" class="linkish" id="rhymeReset" hidden></button>
+            <label class="check"><input type="checkbox" id="rhymeOverride"> <span>Override the selected rhyme with</span></label>
+            <input id="rhymeWith" placeholder="a word (blank = no rhyme)" autocomplete="off" spellcheck="false" aria-label="Word to rhyme with instead of the default">
+            <p class="hint small rhyme-caption" id="rhymeCaption"></p>
           </div>
           <div class="reword-row" id="rewordRow">
             <label class="check"><input type="checkbox" id="rewordOn"> <span>Try to reword this line to fit the rhyme</span></label>
@@ -177,7 +177,7 @@
   <footer class="site-foot">
     Lyricpad — write lyrics with live syllable counts, rhymes and a thesaurus.
     <a href="help.html" target="_blank" rel="noopener">Help</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a>
-    · <button type="button" id="version" class="ver" data-build="f828c89a" data-date="2026-11-02" title="Click to check whether a newer version is available">Version f828c89a · 2026-11-02</button>
+    · <button type="button" id="version" class="ver" data-build="101aaaaa" data-date="2026-11-02" title="Click to check whether a newer version is available">Version 101aaaaa · 2026-11-02</button>
   </footer>
   <dialog id="songsDialog" class="songs-dialog" aria-labelledby="songsTitle">
     <div class="dlg-head">
@@ -200,6 +200,6 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=f828c89a"></script>
+  <script type="module" src="js/app.js?v=101aaaaa"></script>
 </body>
 </html>

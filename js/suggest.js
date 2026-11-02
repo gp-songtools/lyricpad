@@ -175,7 +175,7 @@ function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith, s
   // "Reword to fit the rhyme": keep the line's meaning, change only the wording so it ends on the rhyme.
   const rewording = mode === "rewrite" && reword && rhymeWith && target.trim();
   if (rewording) {
-    parts.push(`Suggest 6 ways to reword the selected line: "${target}". Keep its meaning, imagery and tone as close to the original as you can and add no new ideas, but change the wording so the line ends on a word that rhymes with "${rhymeWith}".`);
+    parts.push(`Suggest 6 ways to reword the selected line: "${target}". Keep its meaning, imagery and tone as close to the original as you can and add no new ideas, but change the wording so the line ends on a different word that rhymes with "${rhymeWith}".`);
   } else if (mode === "rewrite") {
     parts.push(target.trim()
       ? `Suggest 6 alternative versions of the selected line: "${target}". Keep its role in the song but try different images and wording.`
@@ -186,7 +186,7 @@ function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith, s
   if (startsWith) parts.push(`Each line must begin with the words "${startsWith}", exactly as written, and then carry on from there.`);
   if (endsWith) parts.push(`Each line must end with the words "${endsWith}", exactly as written, with the rest of the line leading into them.`);
   if (syllables) parts.push(`Each line must have exactly ${syllables} syllables.`);
-  if (rhymeWith && !rewording) parts.push(`Each line must end on a word that rhymes with "${rhymeWith}".`);
+  if (rhymeWith && !rewording) parts.push(`Each line must end on a word that rhymes with "${rhymeWith}" (a different word, not "${rhymeWith}" itself).`);
   return parts.join("\n\n");
 }
 
@@ -202,7 +202,7 @@ export function initSuggest(editor) {
     settings: $("aiSettings"), provider: $("aiProvider"), key: $("aiKey"), model: $("aiModel"),
     remember: $("aiRemember"), forget: $("aiForget"), keyHelp: $("aiKeyHelp"), summary: $("aiSummary"),
     topic: $("topic"), targetNum: $("targetNum"), targetText: $("targetText"), matchSyl: $("matchSyl"),
-    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), rhymeOn: $("rhymeOn"), rhymeReset: $("rhymeReset"), rewordOn: $("rewordOn"), rewordRow: $("rewordRow"), rewordNote: $("rewordNote"),
+    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), rhymeOverride: $("rhymeOverride"), rhymeCaption: $("rhymeCaption"), rewordOn: $("rewordOn"), rewordRow: $("rewordRow"), rewordNote: $("rewordNote"),
     startOn: $("startOn"), startWith: $("startWith"), endOn: $("endOn"), endWith: $("endWith"), endNote: $("endNote"), rhymeRow: $("rhymeRow"), go: $("suggestBtn"), out: $("suggestOut"),
     modeRewrite: $("modeRewrite"), modeNext: $("modeNext"), fast: $("aiFast"),
   };
@@ -348,67 +348,61 @@ export function initSuggest(editor) {
   els.sylReset.addEventListener("click", () => { sylCustom = false; updateSyl(editor.context().lines); });
 
   // ---- rhyme target ----
-  // In "Write the next line" mode the rhyme word starts as the last word of the selected line
-  // (or of the nearest lyric line above an empty one) and follows it, until you type your own;
-  // picking another line or switching modes starts over. In "Rewrite this line" the same happens
-  // when "reword to fit the rhyme" is on, using the line above instead (the line to rhyme with).
-  // The checkbox turns the rhyme on/off.
-  let rhymeLine = -1, rhymeMode = null, rhymeCustom = false, rhymeDefault = "", rewordPref = false;
+  // Suggestions rhyme with a word. By default that's the last word of the selected line (for a
+  // blank line, the nearest line above with words; with nothing above, the first line that has
+  // words), and it follows your selection. "Override the selected rhyme with" swaps in a word you
+  // type instead; leave that box blank to ask for no rhyme. The caption always names the word in use.
+  let rewordPref = false, overrideText = "";
   const stripTags = (line) => line.replace(/\[[^\]]*\]?/g, " ");
 
-  function lastWord(lines, index) {
-    for (let i = index; i >= 0; i--) {
-      const m = stripTags(lines[i] || "").match(/([a-z][a-z'\u2019]*)[^a-z]*$/i);
-      if (m) return m[1].replace(/(?<!in)['\u2019]+$/i, "");
-    }
-    return "";
+  function wordOnLine(line) {
+    const m = stripTags(line || "").match(/([a-z][a-z'’]*)[^a-z]*$/i);
+    return m ? m[1].replace(/(?<!in)['’]+$/i, "") : "";
+  }
+  function defaultRhyme(lines, index) {
+    for (let i = index; i >= 0; i--) { const word = wordOnLine(lines[i]); if (word) return { word, line: i }; }
+    for (let i = index + 1; i < lines.length; i++) { const word = wordOnLine(lines[i]); if (word) return { word, line: i }; }
+    return { word: "", line: -1 };
+  }
+  // The rhyme in force: the default, or the override (blank = none).
+  function rhymeInfo(lines) {
+    const def = defaultRhyme(lines, lineIndex);
+    const over = els.rhymeOverride.checked;
+    const typed = els.rhymeWith.value.trim();
+    return { def, over, typed, word: over ? typed : def.word };
   }
   function updateRhyme(lines) {
-    const m = mode();
-    const switched = m !== rhymeMode;
-    const rewording = m === "rewrite" && rewordPref && !rewordBlocked(lines);
-    const auto = m === "next" || rewording; // the box suggests a word in these cases
-    rhymeDefault = m === "next" ? lastWord(lines, lineIndex) : rewording ? lastWord(lines, lineIndex - 1) : "";
-    if (switched) {
-      // Entering "next line" turns the rhyme on; leaving it drops the automatic word.
-      if (m === "next" && rhymeMode !== null) els.rhymeOn.checked = true;
-      if (m === "rewrite" && !rhymeCustom && !rewording) els.rhymeOn.checked = false;
-      rhymeMode = m;
-      rhymeLine = lineIndex;
-      if (m === "next") rhymeCustom = false;
-    } else if (lineIndex !== rhymeLine) {
-      rhymeLine = lineIndex;
-      if (auto) rhymeCustom = false;
-    }
-    // In plain "Rewrite this line" the box is left alone, so a word suggested a moment ago
-    // doesn't vanish if the suggestion stops (e.g. a topic is typed) and can resume later.
-    if (!rhymeCustom && (auto || switched)) els.rhymeWith.value = rhymeDefault;
-    els.rhymeWith.disabled = !els.rhymeOn.checked;
-    const differs = auto && rhymeCustom && rhymeDefault && els.rhymeWith.value.trim() !== rhymeDefault;
-    els.rhymeReset.hidden = !differs;
-    els.rhymeReset.textContent = `reset to “${rhymeDefault}”`;
-    writeStore("localStorage", "rhymeOn:" + m, els.rhymeOn.checked ? "1" : "0");
+    const { def, over, typed } = rhymeInfo(lines);
+    els.rhymeWith.disabled = !over;
+    const from = def.line === lineIndex
+      ? `the last word of the selected line (line ${def.line + 1})`
+      : `the last word of line ${def.line + 1}, the nearest line with words`;
+    els.rhymeCaption.textContent =
+      endValue() ? "Skipped — the ending is fixed by “Line ends with”."
+      : over ? (typed ? `Rhyming with “${typed}”${def.word ? ` instead of “${def.word}”` : ""}.` : "No rhyme required. Type a word to rhyme with one.")
+      : def.word ? `Rhyming with “${def.word}” — ${from}.`
+      : "No rhyme yet — there are no lyrics to rhyme with.";
   }
-  els.rhymeWith.addEventListener("input", () => {
-    rhymeCustom = els.rhymeWith.value.trim() !== "";
-    if (rhymeCustom) els.rhymeOn.checked = true;
+  els.rhymeOverride.addEventListener("change", () => {
+    // Your typed word is kept while the override is off, but hidden so it can't be mistaken for the default.
+    if (els.rhymeOverride.checked) els.rhymeWith.value = overrideText;
+    else { overrideText = els.rhymeWith.value; els.rhymeWith.value = ""; }
     updateRhyme(editor.context().lines);
+    updateReword();
+    if (els.rhymeOverride.checked) els.rhymeWith.focus();
   });
-  els.rhymeOn.addEventListener("change", () => updateRhyme(editor.context().lines));
-  els.rhymeReset.addEventListener("click", () => { rhymeCustom = false; updateRhyme(editor.context().lines); });
-  for (const r of [els.modeNext, els.modeRewrite]) r.addEventListener("change", () => updateRhyme(editor.context().lines));
-  // Start in whichever on/off state was last used for the starting mode.
-  els.rhymeOn.checked = readStore("localStorage", "rhymeOn:" + mode()) === "1" || (mode() === "next" && readStore("localStorage", "rhymeOn:next") === null);
+  els.rhymeWith.addEventListener("input", () => { updateRhyme(editor.context().lines); updateReword(); });
 
   // ---- start / end words ----
   // Optional: the line must begin and/or end with the words typed. Typing ticks the box.
-  // A fixed ending makes "Should rhyme with" pointless, so the rhyme is skipped while it's on.
+  // A fixed ending makes the rhyme pointless, so it is skipped while that's on.
   const startValue = () => (els.startOn.checked ? cleanAffix(els.startWith.value) : "");
   const endValue = () => (els.endOn.checked ? cleanAffix(els.endWith.value) : "");
   function updateAffix() {
     const fixedEnd = !!endValue();
     els.endNote.hidden = !fixedEnd;
     els.rhymeRow.classList.toggle("skipped", fixedEnd);
+    updateRhyme(editor.context().lines);
   }
   for (const [on, input] of [[els.startOn, els.startWith], [els.endOn, els.endWith]]) {
     input.addEventListener("input", () => { if (input.value.trim()) on.checked = true; updateAffix(); });
@@ -418,12 +412,13 @@ export function initSuggest(editor) {
 
   // ---- reword to fit the rhyme ----
   // In "Rewrite this line", this keeps the line's meaning and only changes its wording so it ends
-  // on the rhyme word. With a topic there are new ideas to bring in, so a topic switches it off
-  // (as do an empty line and a fixed ending, which leave nothing to reword).
+  // on a word that rhymes with the rhyme word. With a topic there are new ideas to bring in, so a
+  // topic switches it off (as do an empty line, a fixed ending and having no rhyme word).
   function rewordBlocked(lines) {
     if (els.topic.value.trim()) return "Not available while there's a Topic / feel — clear it to use this.";
     if (!(lines[lineIndex] || "").trim()) return "Select a line that has words in it.";
     if (endValue()) return "Not available while “Line ends with” is on.";
+    if (!rhymeInfo(lines).word) return "Needs a rhyme word to aim for — type one in the override box.";
     return "";
   }
   function updateReword() {
@@ -434,18 +429,7 @@ export function initSuggest(editor) {
     els.rewordRow.classList.toggle("off", !!why);
     els.rewordNote.textContent = why || "Keeps its meaning and changes the wording so the line ends on the rhyme word.";
   }
-  els.rewordOn.addEventListener("change", () => {
-    rewordPref = els.rewordOn.checked;
-    if (rewordPref) {
-      els.rhymeOn.checked = true;
-      // With no word of your own, the last word of the line above is suggested (a couplet) and
-      // follows the selected line; the box stays editable.
-      if (!els.rhymeWith.value.trim()) rhymeCustom = false;
-    }
-    updateRhyme(editor.context().lines);
-    if (rewordPref && !els.rhymeWith.value.trim()) els.rhymeWith.focus();
-  });
-  els.rhymeOn.addEventListener("change", () => { if (!els.rhymeOn.checked) rewordPref = false; updateReword(); });
+  els.rewordOn.addEventListener("change", () => { rewordPref = els.rewordOn.checked; updateReword(); });
   for (const el of [els.modeNext, els.modeRewrite]) el.addEventListener("change", updateReword);
   for (const el of [els.topic, els.endWith]) el.addEventListener("input", updateReword);
   els.endOn.addEventListener("change", updateReword);
@@ -480,9 +464,8 @@ export function initSuggest(editor) {
     const { title, lines } = editor.context();
     const syllables = els.matchSyl.checked ? clampSyl(+els.sylCount.value) : null;
     if (syllables) els.sylCount.value = syllables;
-    const reword = mode() === "rewrite" && els.rewordOn.checked && !els.rewordOn.disabled;
-    const rhymeWord = els.rhymeOn.checked && !endValue() ? els.rhymeWith.value.trim() : "";
-    if (reword && !rhymeWord) { els.rhymeWith.focus(); return showError("Type the word to rhyme with first."); }
+    const rhymeWord = endValue() ? "" : rhymeInfo(lines).word;
+    const reword = mode() === "rewrite" && els.rewordOn.checked && !els.rewordOn.disabled && !!rhymeWord;
     const req = {
       title, topic: els.topic.value.trim(), lines, index: lineIndex, mode: mode(),
       syllables, rhymeWith: rhymeWord, reword,

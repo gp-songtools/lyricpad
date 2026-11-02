@@ -14,7 +14,7 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=3748d1be">
+  <link rel="stylesheet" href="css/style.css?v=9d388813">
 </head>
 <body>
   <header class="topbar">
@@ -139,6 +139,15 @@
             <label><input type="radio" name="mode" id="modeNext"> Write the next line</label>
           </div>
 
+          <div class="rhyme-row">
+            <label class="check"><input type="checkbox" id="startOn"> <span>Line starts with</span></label>
+            <input id="startWith" placeholder="e.g. I never knew" autocomplete="off" spellcheck="false" aria-label="Words the line should start with">
+          </div>
+          <div class="rhyme-row">
+            <label class="check"><input type="checkbox" id="endOn"> <span>Line ends with</span></label>
+            <input id="endWith" placeholder="e.g. in the morning light" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Words the line should end with">
+            <p class="hint small affix-note" id="endNote" hidden>The ending is fixed, so “Should rhyme with” is skipped.</p>
+          </div>
           <div class="syl-row">
             <label class="check"><input type="checkbox" id="matchSyl" checked> <span>Syllables per line</span></label>
             <div class="stepper">
@@ -148,7 +157,7 @@
             </div>
             <button type="button" class="linkish" id="sylReset" hidden></button>
           </div>
-          <div class="rhyme-row">
+          <div class="rhyme-row" id="rhymeRow">
             <label class="check"><input type="checkbox" id="rhymeOn"> <span>Should rhyme with</span></label>
             <input id="rhymeWith" placeholder="e.g. tonight" autocomplete="off" spellcheck="false" aria-label="Word the suggestions should rhyme with">
             <button type="button" class="linkish" id="rhymeReset" hidden></button>
@@ -186,6 +195,6 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=3748d1be"></script>
+  <script type="module" src="js/app.js?v=9d388813"></script>
 </body>
 </html>

@@ -162,6 +162,10 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 }
 .rhyme-row input:not([type]):focus { border-color: var(--accent); }
 .rhyme-row input:disabled { opacity: .5; }
+.rhyme-row > label.check { min-width: 9.4rem; }
+.rhyme-row:has(> label input[type="checkbox"]:not(:checked)) > input:not([type]) { opacity: .6; }
+.rhyme-row.skipped { opacity: .5; }
+.rhyme-row .affix-note { flex-basis: 100%; margin: 0; color: var(--warn); }
 .rhyme-row .linkish { flex-basis: 100%; text-align: left; }
 button.linkish { border: 0; background: none; padding: 0; font-size: .78rem; color: var(--accent); text-decoration: underline; }
 
@@ -222,6 +226,8 @@ button:disabled { opacity: .55; cursor: default; }
 .suggestions .syl { font-size: .75rem; font-variant-numeric: tabular-nums; color: var(--warn); min-width: 1.5rem; text-align: right; }
 .suggestions .syl.fits { color: var(--accent); font-weight: 700; }
 .suggestions .text { font-family: var(--font-text); font-size: 1.02rem; }
+.suggestions .flag { grid-column: 2; font-size: .75rem; color: var(--warn); }
+.suggestions li.mismatch .text { opacity: .75; }
 .suggestions .acts { grid-column: 2; display: flex; gap: .4rem; }
 .suggestions .acts button { font-size: .75rem; padding: .2rem .55rem; }
 

@@ -15,7 +15,7 @@ const SYSTEM_PROMPT = `You are a lyric-writing collaborator helping a songwriter
 
 Write lines that sound sung, not written: concrete images, natural word stress, plain words over fancy ones, no clichés unless twisted. Each suggestion should be a genuinely different idea, not small rewordings of one line.
 
-When a syllable count is requested, count carefully and hit it exactly - the songwriter is fitting the line to a melody. When a rhyme is requested, end the line on a word that rhymes (a near rhyme is acceptable if it sings well).
+When a syllable count is requested, count carefully and hit it exactly - the songwriter is fitting the line to a melody. When a rhyme is requested, end the line on a word that rhymes (a near rhyme is acceptable if it sings well). When a line must begin or end with given words, use those words exactly as written and count them in the syllable total.
 
 Return only the lines themselves: no numbering, quotes, or commentary.`;
 
@@ -165,7 +165,7 @@ function parseSuggestions(text) {
 }
 
 // ---------- prompt ----------
-function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith }) {
+function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith, startsWith, endsWith }) {
   const marked = lines.map((l, i) => (i === index ? `${l}    <<< SELECTED LINE` : l)).join("\n");
   const target = lines[index] ?? "";
   const parts = [];
@@ -179,10 +179,18 @@ function buildPrompt({ title, topic, lines, index, mode, syllables, rhymeWith })
   } else {
     parts.push(`Suggest 6 options for the line that comes right after the selected line${target.trim() ? ` ("${target}")` : ""}, continuing the song naturally.`);
   }
+  if (startsWith) parts.push(`Each line must begin with the words "${startsWith}", exactly as written, and then carry on from there.`);
+  if (endsWith) parts.push(`Each line must end with the words "${endsWith}", exactly as written, with the rest of the line leading into them.`);
   if (syllables) parts.push(`Each line must have exactly ${syllables} syllables.`);
   if (rhymeWith) parts.push(`Each line must end on a word that rhymes with "${rhymeWith}".`);
   return parts.join("\n\n");
 }
+
+// ---------- start / end words ----------
+const cleanAffix = (v) => v.replace(/^[\s"“”]+|[\s"“”]+$/g, "").replace(/\s+/g, " ");
+const norm = (s) => s.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^\p{L}\p{N}'\s]/gu, " ").replace(/\s+/g, " ").trim();
+const startsOk = (line, s) => !s || (norm(line) + " ").startsWith(norm(s) + " ");
+const endsOk = (line, e) => !e || (" " + norm(line)).endsWith(" " + norm(e));
 
 // ---------- UI ----------
 export function initSuggest(editor) {
@@ -190,7 +198,8 @@ export function initSuggest(editor) {
     settings: $("aiSettings"), provider: $("aiProvider"), key: $("aiKey"), model: $("aiModel"),
     remember: $("aiRemember"), forget: $("aiForget"), keyHelp: $("aiKeyHelp"), summary: $("aiSummary"),
     topic: $("topic"), targetNum: $("targetNum"), targetText: $("targetText"), matchSyl: $("matchSyl"),
-    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), rhymeOn: $("rhymeOn"), rhymeReset: $("rhymeReset"), go: $("suggestBtn"), out: $("suggestOut"),
+    sylCount: $("sylCount"), sylUp: $("sylUp"), sylDown: $("sylDown"), sylReset: $("sylReset"), rhymeWith: $("rhymeWith"), rhymeOn: $("rhymeOn"), rhymeReset: $("rhymeReset"),
+    startOn: $("startOn"), startWith: $("startWith"), endOn: $("endOn"), endWith: $("endWith"), endNote: $("endNote"), rhymeRow: $("rhymeRow"), go: $("suggestBtn"), out: $("suggestOut"),
     modeRewrite: $("modeRewrite"), modeNext: $("modeNext"), fast: $("aiFast"),
   };
   // One-time: switch existing Gemini users to the new default model.
@@ -380,6 +389,22 @@ export function initSuggest(editor) {
   // Start in whichever on/off state was last used for the starting mode.
   els.rhymeOn.checked = readStore("localStorage", "rhymeOn:" + mode()) === "1" || (mode() === "next" && readStore("localStorage", "rhymeOn:next") === null);
 
+  // ---- start / end words ----
+  // Optional: the line must begin and/or end with the words typed. Typing ticks the box.
+  // A fixed ending makes "Should rhyme with" pointless, so the rhyme is skipped while it's on.
+  const startValue = () => (els.startOn.checked ? cleanAffix(els.startWith.value) : "");
+  const endValue = () => (els.endOn.checked ? cleanAffix(els.endWith.value) : "");
+  function updateAffix() {
+    const fixedEnd = !!endValue();
+    els.endNote.hidden = !fixedEnd;
+    els.rhymeRow.classList.toggle("skipped", fixedEnd);
+  }
+  for (const [on, input] of [[els.startOn, els.startWith], [els.endOn, els.endWith]]) {
+    input.addEventListener("input", () => { if (input.value.trim()) on.checked = true; updateAffix(); });
+    on.addEventListener("change", () => { updateAffix(); if (on.checked && !input.value.trim()) input.focus(); });
+  }
+  updateAffix();
+
   function refreshTarget() {
     const { lines } = editor.context();
     lineIndex = Math.min(editor.currentLine(), lines.length - 1);
@@ -410,7 +435,8 @@ export function initSuggest(editor) {
     if (syllables) els.sylCount.value = syllables;
     const req = {
       title, topic: els.topic.value.trim(), lines, index: lineIndex, mode: mode(),
-      syllables, rhymeWith: els.rhymeOn.checked ? els.rhymeWith.value.trim() : "",
+      syllables, rhymeWith: els.rhymeOn.checked && !endValue() ? els.rhymeWith.value.trim() : "",
+      startsWith: startValue(), endsWith: endValue(),
     };
     const forIndex = lineIndex, forMode = mode();
     els.go.disabled = true;
@@ -419,7 +445,7 @@ export function initSuggest(editor) {
     try {
       const list = await (p === "claude" ? askClaude : askGemini)({ key, model, user: buildPrompt(req), fast: els.fast.checked });
       if (!list.length) throw new Error("No suggestions came back. Try again.");
-      renderSuggestions(list, forIndex, forMode, syllables);
+      renderSuggestions(list, forIndex, forMode, syllables, { starts: req.startsWith, ends: req.endsWith });
     } catch (err) {
       showError(err.message || String(err));
     } finally {
@@ -428,9 +454,10 @@ export function initSuggest(editor) {
     }
   }
 
-  function renderSuggestions(list, index, forMode, targetSyl) {
+  function renderSuggestions(list, index, forMode, targetSyl, affix = {}) {
     const ul = document.createElement("ul");
     ul.className = "suggestions";
+    let flagged = 0;
     for (const text of list) {
       const li = document.createElement("li");
       const s = editor.lineSyllables(text);
@@ -440,6 +467,18 @@ export function initSuggest(editor) {
         <span class="acts"><button type="button" data-act="use">${forMode === "rewrite" ? "Replace line" : "Insert below"}</button>
         <button type="button" data-act="copy">Copy</button></span>`;
       li.querySelector(".text").textContent = text;
+      // The AI doesn't always keep to the words asked for, so check each line and say so.
+      const problems = [];
+      if (!startsOk(text, affix.starts)) problems.push(`doesn’t start with “${affix.starts}”`);
+      if (!endsOk(text, affix.ends)) problems.push(`doesn’t end with “${affix.ends}”`);
+      if (problems.length) {
+        flagged++;
+        li.classList.add("mismatch");
+        const flag = document.createElement("span");
+        flag.className = "flag";
+        flag.textContent = "⚠ " + problems.join(" and ");
+        li.querySelector(".acts").before(flag);
+      }
       li.querySelector('[data-act="use"]').onclick = () => {
         if (forMode === "rewrite") editor.replaceLine(index, text);
         else editor.insertAfter(index, text);
@@ -456,6 +495,7 @@ export function initSuggest(editor) {
     note.textContent += targetSyl
       ? ` Numbers are syllable counts; highlighted ones hit ${targetSyl}.`
       : " Numbers are syllable counts.";
+    if (flagged) note.textContent += ` ${flagged} of ${list.length} didn’t keep to the start/end words you asked for and ${flagged === 1 ? "is" : "are"} marked.`;
     els.out.replaceChildren(note, ul);
   }
 

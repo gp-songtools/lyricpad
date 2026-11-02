@@ -350,8 +350,10 @@ export function initSuggest(editor) {
   // ---- rhyme target ----
   // In "Write the next line" mode the rhyme word starts as the last word of the selected line
   // (or of the nearest lyric line above an empty one) and follows it, until you type your own;
-  // picking another line or switching modes starts over. The checkbox turns the rhyme on/off.
-  let rhymeLine = -1, rhymeMode = null, rhymeCustom = false, rhymeDefault = "";
+  // picking another line or switching modes starts over. In "Rewrite this line" the same happens
+  // when "reword to fit the rhyme" is on, using the line above instead (the line to rhyme with).
+  // The checkbox turns the rhyme on/off.
+  let rhymeLine = -1, rhymeMode = null, rhymeCustom = false, rhymeDefault = "", rewordPref = false;
   const stripTags = (line) => line.replace(/\[[^\]]*\]?/g, " ");
 
   function lastWord(lines, index) {
@@ -363,21 +365,26 @@ export function initSuggest(editor) {
   }
   function updateRhyme(lines) {
     const m = mode();
-    rhymeDefault = m === "next" ? lastWord(lines, lineIndex) : "";
-    if (m !== rhymeMode) {
+    const switched = m !== rhymeMode;
+    const rewording = m === "rewrite" && rewordPref && !rewordBlocked(lines);
+    const auto = m === "next" || rewording; // the box suggests a word in these cases
+    rhymeDefault = m === "next" ? lastWord(lines, lineIndex) : rewording ? lastWord(lines, lineIndex - 1) : "";
+    if (switched) {
       // Entering "next line" turns the rhyme on; leaving it drops the automatic word.
       if (m === "next" && rhymeMode !== null) els.rhymeOn.checked = true;
-      if (m === "rewrite" && !rhymeCustom) els.rhymeOn.checked = false;
+      if (m === "rewrite" && !rhymeCustom && !rewording) els.rhymeOn.checked = false;
       rhymeMode = m;
       rhymeLine = lineIndex;
       if (m === "next") rhymeCustom = false;
     } else if (lineIndex !== rhymeLine) {
       rhymeLine = lineIndex;
-      if (m === "next") rhymeCustom = false;
+      if (auto) rhymeCustom = false;
     }
-    if (!rhymeCustom) els.rhymeWith.value = rhymeDefault;
+    // In plain "Rewrite this line" the box is left alone, so a word suggested a moment ago
+    // doesn't vanish if the suggestion stops (e.g. a topic is typed) and can resume later.
+    if (!rhymeCustom && (auto || switched)) els.rhymeWith.value = rhymeDefault;
     els.rhymeWith.disabled = !els.rhymeOn.checked;
-    const differs = m === "next" && rhymeCustom && rhymeDefault && els.rhymeWith.value.trim() !== rhymeDefault;
+    const differs = auto && rhymeCustom && rhymeDefault && els.rhymeWith.value.trim() !== rhymeDefault;
     els.rhymeReset.hidden = !differs;
     els.rhymeReset.textContent = `reset to “${rhymeDefault}”`;
     writeStore("localStorage", "rhymeOn:" + m, els.rhymeOn.checked ? "1" : "0");
@@ -413,7 +420,6 @@ export function initSuggest(editor) {
   // In "Rewrite this line", this keeps the line's meaning and only changes its wording so it ends
   // on the rhyme word. With a topic there are new ideas to bring in, so a topic switches it off
   // (as do an empty line and a fixed ending, which leave nothing to reword).
-  let rewordPref = false;
   function rewordBlocked(lines) {
     if (els.topic.value.trim()) return "Not available while there's a Topic / feel — clear it to use this.";
     if (!(lines[lineIndex] || "").trim()) return "Select a line that has words in it.";
@@ -430,15 +436,14 @@ export function initSuggest(editor) {
   }
   els.rewordOn.addEventListener("change", () => {
     rewordPref = els.rewordOn.checked;
-    if (!rewordPref) return;
-    els.rhymeOn.checked = true;
-    if (!els.rhymeWith.value.trim()) {
-      // Suggest the last word of the line above (a couplet); the box stays editable.
-      const guess = lastWord(editor.context().lines, lineIndex - 1);
-      if (guess) { els.rhymeWith.value = guess; rhymeCustom = true; }
+    if (rewordPref) {
+      els.rhymeOn.checked = true;
+      // With no word of your own, the last word of the line above is suggested (a couplet) and
+      // follows the selected line; the box stays editable.
+      if (!els.rhymeWith.value.trim()) rhymeCustom = false;
     }
     updateRhyme(editor.context().lines);
-    if (!els.rhymeWith.value.trim()) els.rhymeWith.focus();
+    if (rewordPref && !els.rhymeWith.value.trim()) els.rhymeWith.focus();
   });
   els.rhymeOn.addEventListener("change", () => { if (!els.rhymeOn.checked) rewordPref = false; updateReword(); });
   for (const el of [els.modeNext, els.modeRewrite]) el.addEventListener("change", updateReword);

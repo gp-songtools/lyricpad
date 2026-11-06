@@ -2,6 +2,8 @@
 // The key is kept in this browser only (localStorage, or sessionStorage if "remember" is off)
 // and is sent straight to the provider - never anywhere else.
 
+import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=030b9be6";
+
 const CLAUDE_MODELS = [
   { id: "claude-opus-5-5", label: "Claude Opus 5.5 — best writing (~2¢ per request)" },
   { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5 — good & cheaper (~1¢)" },
@@ -45,21 +47,37 @@ const settings = {
 
 // ---------- providers ----------
 let anthropicModule = null;
-async function askClaude({ key, model, user, fast }) {
+// Default request shape: a list of line suggestions. "Write a song from a structure" passes its own.
+const SUGGEST_SCHEMA = {
+  type: "object",
+  properties: { suggestions: { type: "array", items: { type: "string" } } },
+  required: ["suggestions"],
+  additionalProperties: false,
+};
+const SUGGEST_GEMINI_SCHEMA = { type: "OBJECT", properties: { suggestions: { type: "ARRAY", items: { type: "STRING" } } }, required: ["suggestions"] };
+const SONG_SCHEMA = {
+  type: "object",
+  properties: { sections: { type: "array", items: {
+    type: "object", properties: { lines: { type: "array", items: { type: "string" } } }, required: ["lines"], additionalProperties: false,
+  } } },
+  required: ["sections"],
+  additionalProperties: false,
+};
+const SONG_GEMINI_SCHEMA = {
+  type: "OBJECT",
+  properties: { sections: { type: "ARRAY", items: { type: "OBJECT", properties: { lines: { type: "ARRAY", items: { type: "STRING" } } }, required: ["lines"] } } },
+  required: ["sections"],
+};
+
+async function askClaude({ key, model, user, fast, system = SYSTEM_PROMPT, schema = SUGGEST_SCHEMA, parse = parseSuggestions }) {
   anthropicModule ||= await import(SDK_URL);
   const Anthropic = anthropicModule.default;
   // The key belongs to the person using this page and goes only to api.anthropic.com.
   const client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true });
-  const schema = {
-    type: "object",
-    properties: { suggestions: { type: "array", items: { type: "string" } } },
-    required: ["suggestions"],
-    additionalProperties: false,
-  };
   const params = {
     model,
     max_tokens: 16000,
-    system: SYSTEM_PROMPT,
+    system,
     messages: [{ role: "user", content: user }],
     // Fast mode: least thinking. (Thinking can't be switched off on these models; effort is the control.)
     output_config: { effort: fast ? "low" : "medium", format: { type: "json_schema", schema } },
@@ -80,7 +98,7 @@ async function askClaude({ key, model, user, fast }) {
   }
   if (response.stop_reason === "max_tokens") throw new Error("The response was cut off. Try again.");
   const text = response.content.filter((b) => b.type === "text").map((b) => b.text).join("");
-  return parseSuggestions(text);
+  return parse(text);
 }
 
 function claudeErrorMessage(err, mod) {
@@ -111,11 +129,11 @@ async function listGeminiModels(key) {
 
 // Fast mode asks for the least thinking. Not every Gemini model accepts every level,
 // so if one is rejected, retry with the next.
-async function askGemini({ key, model, user, fast }) {
+async function askGemini({ key, model, user, fast, system = SYSTEM_PROMPT, geminiSchema = SUGGEST_GEMINI_SCHEMA, parse = parseSuggestions }) {
   const levels = fast ? ["minimal", "low", null] : [null];
   for (let i = 0; i < levels.length; i++) {
     try {
-      return await askGeminiOnce({ key, model, user, thinkingLevel: levels[i] });
+      return await askGeminiOnce({ key, model, user, thinkingLevel: levels[i], system, geminiSchema, parse });
     } catch (err) {
       const last = i === levels.length - 1;
       if (last || !(err.status === 400 && /thinking/i.test(err.message))) throw err;
@@ -123,17 +141,14 @@ async function askGemini({ key, model, user, fast }) {
   }
 }
 
-async function askGeminiOnce({ key, model, user, thinkingLevel }) {
-  const generationConfig = {
-    responseMimeType: "application/json",
-    responseSchema: { type: "OBJECT", properties: { suggestions: { type: "ARRAY", items: { type: "STRING" } } }, required: ["suggestions"] },
-  };
+async function askGeminiOnce({ key, model, user, thinkingLevel, system, geminiSchema, parse }) {
+  const generationConfig = { responseMimeType: "application/json", responseSchema: geminiSchema };
   if (thinkingLevel) generationConfig.thinkingConfig = { thinkingLevel };
   const res = await fetch(`${GEMINI_API}/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: user }] }],
       generationConfig,
     }),
@@ -145,7 +160,7 @@ async function askGeminiOnce({ key, model, user, thinkingLevel }) {
   if (cand.finishReason && !["STOP", "MAX_TOKENS"].includes(cand.finishReason)) {
     throw new Error(`Gemini stopped early (${cand.finishReason}).`);
   }
-  return parseSuggestions((cand.content?.parts || []).map((p) => p.text || "").join(""));
+  return parse((cand.content?.parts || []).map((p) => p.text || "").join(""));
 }
 
 function geminiError(status, data) {
@@ -533,5 +548,127 @@ export function initSuggest(editor) {
   }
 
   els.go.addEventListener("click", run);
+
+  // ---- write a whole song from a structure ----
+  // Paste the Song Structure copied from Suno Style Creator; the AI writes lyrics about the Topic
+  // that fit each section's line count, syllables and rhymes. The section tags are added back here.
+  const st = { input: $("structIn"), info: $("structInfo"), go: $("structBtn"), out: $("structOut") };
+  let structure = parseStructure("");
+
+  function readStructure() {
+    structure = parseStructure(st.input.value);
+    const sung = structure.sections.filter((s) => s.lines > 0);
+    const total = sung.reduce((n, s) => n + s.lines, 0);
+    const feel = [structure.bpm && `${structure.bpm} BPM`, structure.key].filter(Boolean).join(", ");
+    st.info.textContent = !st.input.value.trim() ? ""
+      : !sung.length ? "This doesn't look like a Song Structure from Suno Style Creator: no sections with lyric lines found."
+      : `${structure.sections.length} sections · ${total} lines to write${feel ? ` · ${feel}` : ""}`;
+    writeStore("localStorage", "structure", st.input.value || null);
+  }
+  st.input.value = readStore("localStorage", "structure") || "";
+  st.input.addEventListener("input", readStructure);
+  readStructure();
+
+  function showSongError(msg) {
+    const p = document.createElement("p");
+    p.className = "error";
+    p.textContent = msg;
+    st.out.replaceChildren(p);
+  }
+
+  async function writeSong() {
+    readStructure();
+    const p = els.provider.value;
+    const key = settings.key(p);
+    if (!key) { els.settings.open = true; els.key.focus(); return showSongError("Add an API key in AI settings first."); }
+    const model = els.model.value;
+    if (!model) return showSongError("Pick a model in AI settings.");
+    if (!structure.sections.some((s) => s.lines > 0)) { st.input.focus(); return showSongError("Paste a Song Structure first."); }
+    const topic = els.topic.value.trim();
+    if (!topic) { els.topic.focus(); return showSongError("Fill in Topic / feel first: it's what the song will be about."); }
+    const forStructure = structure;
+    st.go.disabled = true;
+    st.go.textContent = "Writing…";
+    st.out.innerHTML = `<p class="hint">Asking ${p === "claude" ? "Claude" : "Gemini"} to write the song. This can take a minute.</p>`;
+    try {
+      const written = await (p === "claude" ? askClaude : askGemini)({
+        key, model, fast: els.fast.checked,
+        user: buildSongPrompt({ title: editor.context().title, topic, structure: forStructure }),
+        system: SONG_SYSTEM_PROMPT, schema: SONG_SCHEMA, geminiSchema: SONG_GEMINI_SCHEMA, parse: parseSongAnswer,
+      });
+      if (!written.some((lines) => lines.length)) throw new Error("No lyrics came back. Try again.");
+      renderSong(forStructure, written);
+    } catch (err) {
+      showSongError(err.message || String(err));
+    } finally {
+      st.go.disabled = false;
+      st.go.textContent = "Write lyrics";
+    }
+  }
+
+  function renderSong(forStructure, written) {
+    const view = document.createElement("div");
+    view.className = "song-out";
+    let hit = 0, total = 0, w = 0;
+    const short = [];
+    for (const s of forStructure.sections) {
+      const sec = document.createElement("div");
+      sec.className = "song-sec";
+      const tag = document.createElement("div");
+      tag.className = "tag";
+      tag.textContent = s.tag;
+      sec.append(tag);
+      if (s.lines > 0) {
+        const lines = written[w++] || [];
+        if (lines.length !== s.lines) short.push(`${s.name} has ${lines.length} of ${s.lines} lines`);
+        lines.forEach((text, k) => {
+          const want = s.syllables[k];
+          const c = editor.lineSyllables(text);
+          const got = c ? (c.min === c.max ? `${c.min}` : `${c.min}–${c.max}`) : "0";
+          const fits = !!(want && c && c.min <= want && want <= c.max);
+          if (want) { total++; if (fits) hit++; }
+          const row = document.createElement("div");
+          row.className = "song-line";
+          const syl = document.createElement("span");
+          syl.className = "syl" + (fits ? " fits" : "");
+          syl.textContent = want && !fits ? `${got}/${want}` : got;
+          syl.title = want ? `${got} syllables (target ${want})` : `${got} syllables`;
+          const t = document.createElement("span");
+          t.className = "text";
+          t.textContent = text;
+          row.append(syl, t);
+          sec.append(row);
+        });
+      }
+      view.append(sec);
+    }
+    const song = assembleSong(forStructure, written);
+    const note = document.createElement("p");
+    note.className = "hint small";
+    note.textContent = (total ? `${hit} of ${total} lines hit their syllable target (highlighted); the others show count/target.` : "Numbers are syllable counts.")
+      + (short.length ? ` Line count off: ${short.join("; ")}.` : "");
+    const acts = document.createElement("div");
+    acts.className = "acts";
+    const button = (label, title, onClick) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.title = title;
+      b.onclick = onClick;
+      acts.append(b);
+    };
+    button("Replace song", "Replace everything in the editor with these lyrics (Ctrl/Cmd+Z undoes)", () => editor.replaceAll(song));
+    button("Add to end", "Add these lyrics after what's in the editor", () => editor.append(song));
+    button("Copy", "Copy these lyrics", async () => {
+      try { await navigator.clipboard.writeText(song); editor.toast("Copied the lyrics"); }
+      catch { editor.toast("Couldn't copy. Select the lyrics and copy them by hand."); }
+    });
+    const wrap = document.createElement("div");
+    wrap.className = "song-out";
+    wrap.append(note, acts, view);
+    st.out.replaceChildren(wrap);
+  }
+
+  st.go.addEventListener("click", writeSong);
   return { refreshTarget };
 }

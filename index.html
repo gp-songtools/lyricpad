@@ -14,7 +14,7 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=634ddf69">
+  <link rel="stylesheet" href="css/style.css?v=030b9be6">
 </head>
 <body>
   <header class="topbar">
@@ -129,6 +129,17 @@
             <input id="topic" placeholder="e.g. leaving a small town, bittersweet" autocomplete="off">
           </label>
 
+          <details class="settings" id="structBox">
+            <summary>Write a whole song from a structure</summary>
+            <div class="settings-body">
+              <p class="hint small">Paste a Song Structure copied from <a href="https://gp-songtools.github.io/suno-style-creator/" target="_blank" rel="noopener">Suno Style Creator</a>. The AI writes lyrics about your Topic / feel, with each section's line count, syllables and rhyme scheme.</p>
+              <textarea id="structIn" class="struct-in" rows="6" spellcheck="false" aria-label="Song structure" placeholder="[VERSE 1: half-spoken, tense]&#10;16 bars, 43 secs, 8 lines. Rhyme: ABABCDCD. Syllables: 8.7.8.7.8.7.8.7."></textarea>
+              <p class="hint small" id="structInfo"></p>
+              <button type="button" class="primary" id="structBtn">Write lyrics</button>
+              <div id="structOut" aria-live="polite"></div>
+            </div>
+          </details>
+
           <div class="field">
             <span>Selected line <span class="muted" id="targetNum"></span></span>
             <div class="quote" id="targetText"></div>
@@ -177,7 +188,7 @@
   <footer class="site-foot">
     Lyricpad — write lyrics with live syllable counts, rhymes and a thesaurus.
     <a href="help.html" target="_blank" rel="noopener">Help</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a>
-    · <button type="button" id="version" class="ver" data-build="634ddf69" data-date="2026-11-06" title="Click to check whether a newer version is available">Version 634ddf69 · 2026-11-06</button>
+    · <button type="button" id="version" class="ver" data-build="030b9be6" data-date="2026-11-06" title="Click to check whether a newer version is available">Version 030b9be6 · 2026-11-06</button>
   </footer>
   <dialog id="songsDialog" class="songs-dialog" aria-labelledby="songsTitle">
     <div class="dlg-head">
@@ -200,6 +211,6 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=634ddf69"></script>
+  <script type="module" src="js/app.js?v=030b9be6"></script>
 </body>
 </html>

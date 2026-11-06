@@ -1,9 +1,9 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=634ddf69";
-import { initSuggest } from "./suggest.js?v=634ddf69";
-import { initThesaurus } from "./thesaurus.js?v=634ddf69";
-import { initDrive } from "./drive.js?v=634ddf69";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=030b9be6";
+import { initSuggest } from "./suggest.js?v=030b9be6";
+import { initThesaurus } from "./thesaurus.js?v=030b9be6";
+import { initDrive } from "./drive.js?v=030b9be6";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -424,6 +424,16 @@ const suggest = safeInit("Suggest lines", () => initSuggest({
     const { end } = lineBounds(index);
     replaceRange(end, end, "\n" + text);
     toast(`Added line ${index + 2}`);
+  },
+  replaceAll(text) {
+    replaceRange(0, els.lyrics.value.length, text);
+    toast("Replaced the song. Ctrl/Cmd+Z undoes.");
+  },
+  append(text) {
+    const v = els.lyrics.value;
+    const gap = !v.trim() ? "" : v.endsWith("\n\n") ? "" : v.endsWith("\n") ? "\n" : "\n\n";
+    replaceRange(v.length, v.length, gap + text);
+    toast("Added the lyrics at the end");
   },
   copy,
   toast,

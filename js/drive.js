@@ -2,10 +2,10 @@
 //
 // Uses Google Identity Services for sign-in and the Drive API with the drive.file scope,
 // which only gives access to files this app created - never the rest of the user's Drive.
-// The access token lives in memory (and sessionStorage, so a reload within the hour
-// doesn't need another sign-in); nothing is sent anywhere except Google.
+// The access token (Google gives one hour) is kept in localStorage, so reopening the page
+// within the hour doesn't need another sign-in; nothing is sent anywhere except Google.
 
-import { GOOGLE_CLIENT_ID } from "./config.js?v=101aaaaa";
+import { GOOGLE_CLIENT_ID } from "./config.js?v=634ddf69";
 
 const SCOPE = "https://www.googleapis.com/auth/drive.file";
 const FOLDER_NAME = "Lyricpad";
@@ -20,10 +20,6 @@ class NeedsSignIn extends Error {}
 const store = {
   get(k) { try { return localStorage.getItem("lyricpad:drive:" + k); } catch { return null; } },
   set(k, v) { try { v == null ? localStorage.removeItem("lyricpad:drive:" + k) : localStorage.setItem("lyricpad:drive:" + k, v); } catch { /* ignore */ } },
-};
-const session = {
-  get(k) { try { return sessionStorage.getItem("lyricpad:drive:" + k); } catch { return null; } },
-  set(k, v) { try { v == null ? sessionStorage.removeItem("lyricpad:drive:" + k) : sessionStorage.setItem("lyricpad:drive:" + k, v); } catch { /* ignore */ } },
 };
 
 const clientId = () => GOOGLE_CLIENT_ID || store.get("clientId") || "";
@@ -43,14 +39,27 @@ function loadGis() {
   return gisReady;
 }
 
-let token = null; // { value, expires }
-try { token = JSON.parse(session.get("token")); } catch { token = null; }
-const tokenValid = () => token && token.expires > Date.now() + 60_000;
+// { value, expires }. Read from localStorage each time, so tabs share a renewed token.
+// (Older versions kept it in sessionStorage; that copy is moved over.)
+try {
+  const old = sessionStorage.getItem("lyricpad:drive:token");
+  if (old) { if (!store.get("token")) store.set("token", old); sessionStorage.removeItem("lyricpad:drive:token"); }
+} catch { /* ignore */ }
+function getToken() {
+  try { return JSON.parse(store.get("token")); } catch { return null; }
+}
+function setToken(t) { store.set("token", t ? JSON.stringify(t) : null); }
+const tokenValid = () => { const t = getToken(); return !!t && t.expires > Date.now() + 60_000; };
+// Renew this long before the hour is up (or any time after it has run out).
+const RENEW_BEFORE_MS = 10 * 60_000;
+const needsRenewal = () => { const t = getToken(); return !t || t.expires < Date.now() + RENEW_BEFORE_MS; };
+let onToken = () => {}; // set by the UI: a new token arrived
 
 // Browsers only allow a sign-in popup that opens directly from a click, with nothing
 // awaited in between. So Google's script is loaded and the token client set up ahead of
 // time (prepareSignIn, at page load), and signIn() opens the popup synchronously.
 let tokenClient = null, pending = null, gisFailed = false;
+let inflight = null, inflightAt = 0; // the token request in progress, so one click never opens two popups
 
 function prepareSignIn() {
   if (!clientId()) return Promise.resolve();
@@ -63,15 +72,15 @@ function prepareSignIn() {
       callback: (resp) => {
         const p = pending;
         pending = null;
-        if (!p) return;
-        if (resp.error) return p.reject(new Error(resp.error_description || resp.error));
+        if (resp.error) return p?.reject(new Error(resp.error_description || resp.error));
         if (!google.accounts.oauth2.hasGrantedAllScopes(resp, SCOPE)) {
-          return p.reject(new Error("Lyricpad needs permission to save files to your Drive. Please allow it when Google asks."));
+          return p?.reject(new Error("Lyricpad needs permission to save files to your Drive. Please allow it when Google asks."));
         }
-        token = { value: resp.access_token, expires: Date.now() + (Number(resp.expires_in) || 3600) * 1000 };
-        session.set("token", JSON.stringify(token));
+        setToken({ value: resp.access_token, expires: Date.now() + (Number(resp.expires_in) || 3600) * 1000 });
         store.set("connected", "1");
-        p.resolve();
+        rememberAccount();
+        p?.resolve();
+        onToken();
       },
       error_callback: (err) => {
         const p = pending;
@@ -95,28 +104,59 @@ function signIn() {
       ? "Couldn't load Google sign-in. If you use an ad or tracker blocker, allow accounts.google.com for this site, then try again."
       : "Google sign-in is still loading — try again in a moment."));
   }
-  return new Promise((resolve, reject) => {
-    pending?.reject(new Error("Sign-in was restarted."));
+  // The same click may already have started a quiet renewal (below): share its popup.
+  if (inflight && Date.now() - inflightAt < 2000) return inflight;
+  pending?.reject(new Error("Sign-in was restarted."));
+  inflightAt = Date.now();
+  const req = inflight = new Promise((resolve, reject) => {
     pending = { resolve, reject };
-    tokenClient.requestAccessToken({ prompt: store.get("connected") ? "" : "consent" });
+    const connected = !!store.get("connected");
+    const opts = { prompt: connected ? "" : "consent" };
+    // Naming the account skips Google's account chooser when several accounts are signed in.
+    if (connected && store.get("email")) opts.login_hint = store.get("email");
+    tokenClient.requestAccessToken(opts);
   });
+  req.catch(() => {}).finally(() => { if (inflight === req) inflight = null; });
+  return req;
+}
+
+// Quiet renewal: Google's Drive permission lasts an hour, and a new one can only be asked
+// for from a click (browsers block the popup otherwise). So when the hour is nearly up, or has
+// run out, the next button click renews it. Having already agreed, the person sees Google's
+// window open and close by itself. A failure isn't shown; it's retried a couple of minutes later.
+let lastRenewFail = 0;
+function renewOnClick(e) {
+  if (!tokenClient || inflight || !store.get("connected") || !needsRenewal()) return;
+  const el = e.target.closest?.("button, summary, a[href], label");
+  if (!el || el.closest("[data-no-renew]")) return; // not typing or placing the cursor; not Disconnect
+  if (Date.now() - lastRenewFail < 2 * 60_000) return;
+  signIn().catch(() => { lastRenewFail = Date.now(); });
+}
+
+// The Google account's address, used only as the login_hint above (kept in this browser).
+async function rememberAccount() {
+  if (store.get("email")) return;
+  try {
+    const about = await (await api(`${API}/about?fields=user(emailAddress)`)).json();
+    if (about.user?.emailAddress) store.set("email", about.user.emailAddress);
+  } catch { /* only a convenience */ }
 }
 
 function signOut() {
-  if (token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(token.value, () => {});
-  token = null;
-  session.set("token", null);
+  const t = getToken();
+  if (t && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(t.value, () => {});
+  setToken(null);
   store.set("connected", null);
+  store.set("email", null);
   store.set("folder", null);
 }
 
 // ---------- Drive API ----------
 async function api(url, opts = {}) {
   if (!tokenValid()) throw new NeedsSignIn("Sign in to Google Drive.");
-  const res = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: `Bearer ${token.value}` } });
+  const res = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: `Bearer ${getToken().value}` } });
   if (res.status === 401) {
-    token = null;
-    session.set("token", null);
+    setToken(null);
     throw new NeedsSignIn("Your Google sign-in expired.");
   }
   if (!res.ok) {
@@ -333,6 +373,7 @@ export function initDrive(editor) {
       span.textContent = "Connected to Google Drive — songs are in the “Lyricpad” folder.";
       btn.textContent = "Disconnect";
       btn.className = "ghost";
+      btn.dataset.noRenew = "";
       btn.onclick = () => { signOut(); songs = []; renderAccount(); renderList(); refreshState(); };
     } else {
       span.textContent = "Connect Google Drive to save songs and open them on any device.";
@@ -418,6 +459,13 @@ export function initDrive(editor) {
       if (clientId()) save(); else editor.download();
     }
   });
+
+  // Renew the Drive permission on the next button click when it's nearly out (see renewOnClick).
+  // Capture phase, so it runs before the button's own handler (Save shares the same popup).
+  document.addEventListener("click", renewOnClick, true);
+  onToken = () => { renderAccount(); refreshState(); if (dirty()) scheduleAutosave(); };
+  // Another tab signed in, renewed or disconnected.
+  window.addEventListener("storage", (e) => { if (e.key === "lyricpad:drive:token") refreshState(); });
 
   prepareSignIn().catch((err) => console.error(err));
   return {

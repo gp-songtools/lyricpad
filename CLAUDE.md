@@ -2,7 +2,7 @@
 
 ## Directory map
 - `index.html`, `help.html`, `privacy.html`, `terms.html`, `css/style.css` — pages and styles
-- `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret)
+- `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `structure.js` (song-from-structure parser + prompt), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret)
 - `data/` — `dict.txt` (CMU pronunciations), `thesaurus.txt` (WordNet + Moby); generated, don't hand-edit
 - `tools/` — `stamp-version.sh`, `build_dict.py`, `build_thesaurus.py`
 - `vendor/anthropic-sdk-1.3.0.js` — bundled Anthropic SDK; don't edit
@@ -45,6 +45,7 @@
 - Theme default is Light; `help.html` reads `lyricpad:theme` from localStorage itself.
 - AI keys live only in the user's browser (`lyricpad:ai:key:*`); never commit keys.
 - `[bracketed]` text is a section tag: never counted as syllables or used as a rhyme word.
+- `structure.js` parses Song Structure text copied from `gp-songtools/suno-style-creator` (spec: its `docs/structure-format.md`); keep both in step; still reads the older `ABAB 8.7.8.7` format.
 - UI: explicit captions over hidden defaults; owner dislikes ambiguity.
 - Suggest-lines rhyme defaults to the selected line's last word; "Override the selected rhyme with" replaces it (blank = no rhyme).
 

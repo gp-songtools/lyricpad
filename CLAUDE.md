@@ -2,6 +2,7 @@
 
 ## Directory map
 - `index.html`, `help.html`, `privacy.html`, `terms.html`, `css/style.css` — pages and styles
+- `CHANGELOG.md` — user-facing changes by date, newest first (Added / Changed / Fixed)
 - `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `structure.js` (song-from-structure parser + prompt), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret)
 - `data/` — `dict.txt` (CMU pronunciations), `thesaurus.txt` (WordNet + Moby); generated, don't hand-edit
 - `tools/` — `stamp-version.sh`, `build_dict.py`, `build_thesaurus.py`
@@ -31,6 +32,7 @@
 - Commit as `Claude <noreply@anthropic.com>` (`git config user.name Claude; git config user.email noreply@anthropic.com`); stop hook rejects other authors.
 - Run `tools/stamp-version.sh` before every commit touching `index.html`, `js/`, `css/`, `data/` or any `.html` page.
 - After pushing, report the new version hash (matches the page footer).
+- Add a `CHANGELOG.md` entry in the same commit as every user-facing change: today's date heading (reuse it if it's already at the top), items under Added / Changed / Fixed, plain user wording.
 - Update `help.html` and `README.md` when behavior changes; `privacy.html` (and its "Last updated" date) when stored/sent data changes.
 - Verify in a real browser before claiming a fix.
 - Keep replies plain and short (owner often reads on a phone).

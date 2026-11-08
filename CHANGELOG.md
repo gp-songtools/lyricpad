@@ -7,6 +7,7 @@ All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, 
 ### Added
 
 - **Copy ▾** button beside Export .txt with two choices: **Copy lyrics** (exactly as written) and **Copy without [tags]** (bracketed text removed, tag-only lines dropped, extra spaces and blank lines tidied). An **Include the song title at the top** checkbox is remembered per browser. The editor text is never changed.
+- A **Changelog page** (`changelog.html`) that shows this changelog in a readable layout, with the newest changes first.
 
 ### Changed
 

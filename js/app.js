@@ -1,9 +1,9 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=030b9be6";
-import { initSuggest } from "./suggest.js?v=030b9be6";
-import { initThesaurus } from "./thesaurus.js?v=030b9be6";
-import { initDrive } from "./drive.js?v=030b9be6";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=070fae81";
+import { initSuggest } from "./suggest.js?v=070fae81";
+import { initThesaurus } from "./thesaurus.js?v=070fae81";
+import { initDrive } from "./drive.js?v=070fae81";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -305,7 +305,40 @@ els.results.addEventListener("click", (e) => {
   if (b) copy(b.textContent);
 });
 
-async function copy(text) {
+// ---------- copy the whole song ----------
+// "Copy without [tags]" drops bracketed text (same rule as the syllable counter), removes lines
+// that held only tags, and tidies the spaces and blank lines left behind.
+function stripSongTags(text) {
+  const lines = [];
+  for (const line of text.split("\n")) {
+    if (!/\[/.test(line)) { lines.push(line.replace(/\s+$/, "")); continue; }
+    const kept = stripTags(line).replace(/[ \t]{2,}/g, " ").trim();
+    if (kept) lines.push(kept);
+  }
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+const copyMenu = $("copyMenu"), copyBtn = $("copyBtn"), copyTitle = $("copyTitle");
+copyTitle.checked = store.get("copyTitle", false);
+copyTitle.addEventListener("change", () => store.set("copyTitle", copyTitle.checked));
+function showCopyMenu(open) {
+  copyMenu.hidden = !open;
+  copyBtn.setAttribute("aria-expanded", String(open));
+}
+copyBtn.addEventListener("click", () => showCopyMenu(copyMenu.hidden));
+document.addEventListener("click", (e) => { if (!e.target.closest(".copy-wrap")) showCopyMenu(false); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !copyMenu.hidden) { showCopyMenu(false); copyBtn.focus(); } });
+copyMenu.addEventListener("click", (e) => {
+  const kind = e.target.closest("[data-copy]")?.dataset.copy;
+  if (!kind) return;
+  showCopyMenu(false);
+  const strip = kind === "strip";
+  const lyrics = strip ? stripSongTags(els.lyrics.value) : els.lyrics.value.trim();
+  if (!lyrics) return toast(strip && els.lyrics.value.trim() ? "Nothing left to copy once the [tags] are removed" : "Nothing to copy yet");
+  const title = copyTitle.checked ? els.title.value.trim() : "";
+  copy((title ? title + "\n\n" : "") + lyrics, strip ? "Copied the lyrics without [tags]" : "Copied the lyrics");
+});
+
+async function copy(text, message) {
   try { await navigator.clipboard.writeText(text); }
   catch {
     const t = document.createElement("textarea");
@@ -313,7 +346,7 @@ async function copy(text) {
     try { document.execCommand("copy"); } catch { /* ignore */ }
     t.remove();
   }
-  toast(`Copied “${text}”`);
+  toast(message || `Copied “${text}”`);
 }
 
 let toastTimer;

@@ -72,6 +72,17 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   font-size: 1.15rem; font-weight: 600; outline: none; padding: .2rem .25rem;
 }
 .tools { display: flex; gap: .4rem; }
+.copy-wrap { position: relative; }
+.copy-menu {
+  position: absolute; right: 0; top: calc(100% + .35rem); z-index: 5; width: min(17rem, calc(100vw - 2rem));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .35rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18); display: flex; flex-direction: column; gap: .25rem;
+}
+.copy-menu[hidden] { display: none; }
+.copy-menu button { text-align: left; border-color: transparent; font-weight: 600; }
+.copy-menu button:hover { border-color: var(--accent); }
+.copy-menu small { display: block; font-weight: 400; font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+.copy-menu label { display: flex; align-items: center; gap: .4rem; font-size: .8rem; padding: .35rem .75rem .25rem; border-top: 1px solid var(--line); cursor: pointer; }
 .panel-foot { padding: .45rem .9rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
 
 /* Editor: textarea grows with its content, gutter sits beside it, the wrapper scrolls. */
@@ -313,7 +324,17 @@ button:disabled { opacity: .55; cursor: default; }
   .topbar { padding: .6rem .9rem; gap: .6rem; }
   .editor-panel { height: 62vh; }
   .side-panel { height: 80vh; }
-  .tools button:first-child { display: none; }
+  #rhymeHere { display: none; }
+}
+@media (max-width: 560px) {
+  /* Title gets its own row; the buttons go underneath. */
+  .panel-head { flex-wrap: wrap; }
+  .song-title { flex-basis: 100%; }
+  .tools { flex-wrap: wrap; }
+  /* The Copy button may wrap to the left, so hang its menu from the header's right edge. */
+  .panel-head { position: relative; }
+  .copy-wrap { position: static; }
+  .copy-menu { right: .75rem; top: calc(100% - .25rem); }
 }
 @media (max-width: 480px) {
   .topbar .status { display: none; }

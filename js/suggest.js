@@ -2,7 +2,7 @@
 // The key is kept in this browser only (localStorage, or sessionStorage if "remember" is off)
 // and is sent straight to the provider - never anywhere else.
 
-import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=75d34752";
+import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=e703a436";
 
 const CLAUDE_MODELS = [
   { id: "claude-opus-5-5", label: "Claude Opus 5.5 — best writing (~2¢ per request)" },
@@ -550,7 +550,7 @@ export function initSuggest(editor) {
   els.go.addEventListener("click", run);
 
   // ---- write a whole song from a structure ----
-  // Paste the Song Structure copied from Suno Style Creator; the AI writes lyrics about the Topic
+  // Paste the Song Structure copied from GP Blueprint; the AI writes lyrics about the Topic
   // that fit each section's line count, syllables and rhymes. The section tags are added back here.
   const st = { input: $("structIn"), info: $("structInfo"), go: $("structBtn"), out: $("structOut") };
   let structure = parseStructure("");
@@ -561,7 +561,7 @@ export function initSuggest(editor) {
     const total = sung.reduce((n, s) => n + s.lines, 0);
     const feel = [structure.bpm && `${structure.bpm} BPM`, structure.key].filter(Boolean).join(", ");
     st.info.textContent = !st.input.value.trim() ? ""
-      : !sung.length ? "This doesn't look like a Song Structure from Suno Style Creator: no sections with lyric lines found."
+      : !sung.length ? "This doesn't look like a Song Structure from GP Blueprint: no sections with lyric lines found."
       : `${structure.sections.length} sections · ${total} lines to write${feel ? ` · ${feel}` : ""}`;
     writeStore("localStorage", "structure", st.input.value || null);
   }

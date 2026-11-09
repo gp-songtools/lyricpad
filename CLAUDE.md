@@ -48,7 +48,7 @@
 - Theme default is Light; `help.html` reads `lyricpad:theme` from localStorage itself.
 - AI keys live only in the user's browser (`lyricpad:ai:key:*`); never commit keys.
 - `[bracketed]` text is a section tag: never counted as syllables or used as a rhyme word.
-- `structure.js` parses Song Structure text copied from `gp-songtools/suno-style-creator` (spec: its `docs/structure-format.md`); keep both in step; still reads the older `ABAB 8.7.8.7` format.
+- `structure.js` parses Song Structure text copied from GP Blueprint (repo `gp-songtools/suno-style-creator`) (spec: its `docs/structure-format.md`); keep both in step; still reads the older `ABAB 8.7.8.7` format.
 - UI: explicit captions over hidden defaults; owner dislikes ambiguity.
 - Suggest-lines rhyme defaults to the selected line's last word; "Override the selected rhyme with" replaces it (blank = no rhyme).
 

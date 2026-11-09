@@ -10,6 +10,7 @@ All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, 
 
 ### Changed
 
+- Suno Style Creator is now called **GP Blueprint**. Links, the Write a whole song help and its messages use the new name; copying a Song Structure from it works as before.
 - Lyricpad now counts visits with Cloudflare Web Analytics: anonymous totals only, with no cookies. It never sees your lyrics, songs or keys. The **Privacy** page explains what it reports.
 
 ## 2026-11-08 — Copy menu

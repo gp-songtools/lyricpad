@@ -1,9 +1,9 @@
-// "Write a song from a structure": reads the Song Structure text copied from Suno Style Creator
+// "Write a song from a structure": reads the Song Structure text copied from GP Blueprint
 // (format spec: docs/structure-format.md in gp-songtools/suno-style-creator), builds the AI
 // request, and assembles the answer into lyrics with the section tags. No DOM code here.
 
 // One value per lyric line. A shorter syllable pattern repeats as-is; each repeat of a shorter
-// rhyme pattern gets fresh letters (ABAB over 8 lines -> ABABCDCD), matching Suno Style Creator.
+// rhyme pattern gets fresh letters (ABAB over 8 lines -> ABABCDCD), matching GP Blueprint.
 function fitSyllables(list, n) {
   return list.length && n > 0 ? Array.from({ length: n }, (_, i) => list[i % list.length]) : [];
 }

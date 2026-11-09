@@ -36,6 +36,7 @@
 - Update `help.html` and `README.md` when behavior changes; `privacy.html` (and its "Last updated" date) when stored/sent data changes.
 - Verify in a real browser before claiming a fix.
 - Keep replies plain and short (owner often reads on a phone).
+- Every `.html` page ends with the Cloudflare Web Analytics snippet (same token on all GP Song Tools); add it to any new page. Credits live on the suite page `gp-songtools.github.io/toolsmenu/privacy.html#credits` (repo `gp-songtools/toolsmenu`); update it and `README.md` Credits when adding a data source or library.
 
 ## Gotchas
 - Imports carry `?v=<hash>`; never hand-edit stamps, rerun the script.

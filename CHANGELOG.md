@@ -2,6 +2,16 @@
 
 All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, so entries are grouped by date. The version shown in the page footer is a content hash, not a release number.
 
+## 2026-11-09 — Visit statistics and credits
+
+### Added
+
+- **Credits** link in the footer, listing the dictionaries, word lists and libraries Lyricpad uses.
+
+### Changed
+
+- Lyricpad now counts visits with Cloudflare Web Analytics: anonymous totals only, with no cookies. It never sees your lyrics, songs or keys. The **Privacy** page explains what it reports.
+
 ## 2026-11-08 — Copy menu
 
 ### Added

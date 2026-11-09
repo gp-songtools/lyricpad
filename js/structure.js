@@ -1,5 +1,5 @@
 // "Write a song from a structure": reads the Song Structure text copied from GP Blueprint
-// (format spec: docs/structure-format.md in gp-songtools/suno-style-creator), builds the AI
+// (format spec: docs/structure-format.md in gp-songtools/gp-blueprint), builds the AI
 // request, and assembles the answer into lyrics with the section tags. No DOM code here.
 
 // One value per lyric line. A shorter syllable pattern repeats as-is; each repeat of a shorter

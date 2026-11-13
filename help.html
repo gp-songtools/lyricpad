@@ -68,7 +68,7 @@
 <main>
   <a class="back" href="./">← Back to Lyricpad</a>
   <h1>Lyricpad Help</h1>
-  <p class="lede">Lyricpad is a lyric editor that counts syllables as you type and helps you find rhymes, synonyms and fresh lines. Here's how each part works.</p>
+  <p class="lede">Lyricpad is a lyric editor that counts syllables and colours rhymes as you type, and helps you find rhymes, synonyms and fresh lines. Here's how each part works.</p>
 
   <nav class="toc" aria-label="Contents">
     <a href="#start">Quick start</a>
@@ -122,6 +122,15 @@
     <tr><td><b>Vowel match</b></td><td>Same vowel sounds, any consonants</td><td><i>love → jump</i></td></tr>
   </table>
   <p>Results are grouped by syllable count. Use the <b>syllables</b> filter to show only one length, and tick <b>Rare words</b> to include unusual ones. Tap a result to copy it.</p>
+
+  <h3 id="rhyme-colours">Rhyme colours</h3>
+  <p>As you type, words that rhyme with each other are highlighted in the editor, and each rhyme sound gets its own colour (for example <i>night</i>, <i>bright</i> and <i>tonight</i> in yellow, <i>low</i> and <i>go</i> in blue). Choose what to colour with <b>Rhyme colours</b> in the bar under the editor:</p>
+  <ul>
+    <li><b>Line endings</b> (the default): the last word of each line, so you can see your rhyme scheme at a glance.</li>
+    <li><b>All words</b>: every word, to spot internal rhymes too. Small words like <i>the</i>, <i>and</i> or <i>I</i> are skipped unless they end a line.</li>
+    <li><b>Off</b>: no highlights.</li>
+  </ul>
+  <p>Perfect and near rhymes both count. Two words get the same colour only if they are close together: within 4 lines for line endings, within 2 lines for all words. The same word repeated isn't a rhyme on its own. <i>[Tags]</i> are ignored.</p>
 
   <h2 id="thesaurus">Thesaurus</h2>
   <p>Find a word that means the right thing, and optionally lands the rhyme too.</p>

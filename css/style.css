@@ -105,10 +105,26 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; tab-size: 4;
 }
 #lyrics {
-  display: block; resize: none; overflow: hidden; background: transparent; outline: none; min-height: 100%;
+  position: relative; z-index: 1; display: block; resize: none; overflow: hidden; background: transparent; outline: none; min-height: 100%;
 }
 #lyrics::placeholder { color: var(--muted); opacity: .8; }
-.mirror { position: absolute; inset: 0 auto auto 0; visibility: hidden; pointer-events: none; }
+.mirror { position: absolute; inset: 0 auto auto 0; color: transparent; pointer-events: none; user-select: none; }
+/* Rhyme colours: highlights drawn behind the textarea's text. No padding, so the text doesn't shift. */
+.mirror mark { color: transparent; border-radius: 3px; box-shadow: 0 0 0 1px var(--rh); background: var(--rh); }
+.rh0 { --rh: #ffe08a; } .rh1 { --rh: #b9e4ff; } .rh2 { --rh: #c8f0c0; } .rh3 { --rh: #ffc9d6; }
+.rh4 { --rh: #e0d0ff; } .rh5 { --rh: #ffd2a8; } .rh6 { --rh: #b8efe6; } .rh7 { --rh: #e6e6a0; }
+:root[data-theme="dark"] .rh0 { --rh: #6b5410; } :root[data-theme="dark"] .rh1 { --rh: #164a6b; }
+:root[data-theme="dark"] .rh2 { --rh: #2a5a22; } :root[data-theme="dark"] .rh3 { --rh: #6b2438; }
+:root[data-theme="dark"] .rh4 { --rh: #45307a; } :root[data-theme="dark"] .rh5 { --rh: #6e3e14; }
+:root[data-theme="dark"] .rh6 { --rh: #165a50; } :root[data-theme="dark"] .rh7 { --rh: #55551a; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .rh0 { --rh: #6b5410; } :root:not([data-theme]) .rh1 { --rh: #164a6b; }
+  :root:not([data-theme]) .rh2 { --rh: #2a5a22; } :root:not([data-theme]) .rh3 { --rh: #6b2438; }
+  :root:not([data-theme]) .rh4 { --rh: #45307a; } :root:not([data-theme]) .rh5 { --rh: #6e3e14; }
+  :root:not([data-theme]) .rh6 { --rh: #165a50; } :root:not([data-theme]) .rh7 { --rh: #55551a; }
+}
+.rhyme-colours { display: flex; align-items: center; gap: .3rem; color: var(--muted); white-space: nowrap; }
+.rhyme-colours select { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: .1rem .3rem; }
 .mirror div { min-height: var(--lh); }
 
 /* Rhymes */
@@ -270,7 +286,7 @@ button:disabled { opacity: .55; cursor: default; }
 .song-line .text { font-family: var(--font-text); font-size: .98rem; }
 
 /* Songs / Google Drive */
-.panel-foot { display: flex; justify-content: space-between; gap: 1rem; }
+.panel-foot { display: flex; justify-content: space-between; align-items: center; gap: .4rem 1rem; flex-wrap: wrap; }
 .save-state { white-space: nowrap; }
 .save-state.ok { color: var(--accent); }
 .save-state.warn { color: var(--over); }

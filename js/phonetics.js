@@ -235,6 +235,19 @@ export class Lexicon {
     return null;
   }
 
+  // How two dictionary entries rhyme with each other: "perfect", "near" or null.
+  rhymeBetween(a, b) {
+    if (!a || !b || a.word === b.word) return null;
+    for (const p of a.prons) for (const q of b.prons) if (p.tail.length && p.key === q.key) return "perfect";
+    for (const p of a.prons) {
+      for (const q of b.prons) {
+        if (!p.tail.length || !q.tail.length || Math.abs(p.tail.length - q.tail.length) > 2) continue;
+        if (tailDistance(p.tail, q.tail, NEAR_LIMIT) <= NEAR_LIMIT) return "near";
+      }
+    }
+    return null;
+  }
+
   // Returns {perfect: [...], near: [...], assonance: [...]}, each item {entry, syllables, score}
   rhymes(target, { perfect = true, near = true, assonance = false, rare = false } = {}) {
     const out = { perfect: [], near: [], assonance: [] };

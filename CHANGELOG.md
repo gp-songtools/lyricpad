@@ -2,6 +2,12 @@
 
 All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, so entries are grouped by date. The version shown in the page footer is a content hash, not a release number.
 
+## 2026-11-13 — Rhyme colours
+
+### Added
+
+- **Rhyme colours**: as you type, rhyming words in the editor are highlighted, one colour per rhyme sound. Pick **Line endings** (the default), **All words** (to see internal rhymes too) or **Off** in the bar under the editor.
+
 ## 2026-11-09 — Visit statistics and credits
 
 ### Added

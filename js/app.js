@@ -1,9 +1,10 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=fd9c06b2";
-import { initSuggest } from "./suggest.js?v=fd9c06b2";
-import { initThesaurus } from "./thesaurus.js?v=fd9c06b2";
-import { initDrive } from "./drive.js?v=fd9c06b2";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=171c3128";
+import { initSuggest } from "./suggest.js?v=171c3128";
+import { initThesaurus } from "./thesaurus.js?v=171c3128";
+import { initDrive } from "./drive.js?v=171c3128";
+import { findRhymes } from "./rhymemap.js?v=171c3128";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -65,18 +66,36 @@ function currentLineIndex() {
 }
 
 let lineData = [];
+// Rhyme colours: "off", "ends" (last word of each line) or "all" (every word).
+const rhymeSel = $("rhymeColours");
+let rhymeMode = ["off", "ends", "all"].includes(store.get("rhymeColours", "ends")) ? store.get("rhymeColours", "ends") : "ends";
+rhymeSel.value = rhymeMode;
+rhymeSel.addEventListener("change", () => { rhymeMode = rhymeSel.value; store.set("rhymeColours", rhymeMode); renderEditor(); });
+
 function renderEditor() {
   const text = els.lyrics.value;
   const lines = text.split("\n");
   lineData = lines.map(lineSyllables);
 
   // Mirror each line so wrapped lines get a gutter cell of the right height.
+  // The mirror sits behind the (transparent) textarea, so rhyme highlights show through.
+  let marks = [];
+  try { marks = findRhymes(lexicon, lines, rhymeMode); } catch (err) { console.error("Rhyme colours failed:", err); }
   const mf = document.createDocumentFragment();
-  for (const l of lines) {
+  lines.forEach((l, i) => {
     const d = document.createElement("div");
-    d.textContent = l || "​";
+    let pos = 0;
+    for (const m of marks[i] || []) {
+      if (m.start > pos) d.append(l.slice(pos, m.start));
+      const mk = document.createElement("mark");
+      mk.className = "rh rh" + m.group;
+      mk.textContent = l.slice(m.start, m.end);
+      d.append(mk);
+      pos = m.end;
+    }
+    d.append(pos < l.length ? l.slice(pos) : (l ? "" : "​"));
     mf.appendChild(d);
-  }
+  });
   els.mirror.replaceChildren(mf);
 
   const gf = document.createDocumentFragment();

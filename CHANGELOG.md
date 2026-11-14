@@ -2,6 +2,12 @@
 
 All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, so entries are grouped by date. The version shown in the page footer is a content hash, not a release number.
 
+## 2026-11-14 — New GP Blueprint section tags
+
+### Fixed
+
+- **Song from structure** now reads GP Blueprint's new section tags, like `[CHORUS|euphoric|soaring vocals]`. Before, a repeated chorus with different style hints was not always recognised as a repeat. Older copies like `[CHORUS: soaring vocals]` still work.
+
 ## 2026-11-13 — Rhyme colours
 
 ### Added

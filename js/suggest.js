@@ -2,7 +2,7 @@
 // The key is kept in this browser only (localStorage, or sessionStorage if "remember" is off)
 // and is sent straight to the provider - never anywhere else.
 
-import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=171c3128";
+import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=df5a0ea6";
 
 const CLAUDE_MODELS = [
   { id: "claude-opus-5-5", label: "Claude Opus 5.5 — best writing (~2¢ per request)" },

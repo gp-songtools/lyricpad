@@ -35,7 +35,7 @@ export function parseStructure(text) {
     const tag = first.trim();
     if (!/^\[[^\]]+\]$/.test(tag)) continue;
     const details = rest.join(" ").trim();
-    const name = tag.slice(1, -1).split(":")[0].trim();
+    const name = tag.slice(1, -1).split(/[|:]/)[0].trim(); // "[CHORUS|hint|hint]" or older "[CHORUS: hints]"
     let lines = Number(/(\d+)\s+lines\b/i.exec(details)?.[1] || 0);
     let rhyme = /Rhyme:\s*([A-Za-z]+)/.exec(details)?.[1] || "";
     let syl = /Syllables:\s*(\d+(?:\.\d+)*)/.exec(details)?.[1] || "";

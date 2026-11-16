@@ -6,6 +6,7 @@ All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, 
 
 ### Changed
 
+- **Write a whole song from a structure** also takes the structure from Idea Wizard's **Copy song structure**, and the AI now follows each section's description: its story, images and any line-by-line directions.
 - **Topic / feel** (Suggest lines tab) is now a multi-line box that grows to fit, so a whole paragraph is easy to read. Press Enter for a new line.
 
 ### Fixed

@@ -1,10 +1,10 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=df5a0ea6";
-import { initSuggest } from "./suggest.js?v=df5a0ea6";
-import { initThesaurus } from "./thesaurus.js?v=df5a0ea6";
-import { initDrive } from "./drive.js?v=df5a0ea6";
-import { findRhymes } from "./rhymemap.js?v=df5a0ea6";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=b02865d9";
+import { initSuggest } from "./suggest.js?v=b02865d9";
+import { initThesaurus } from "./thesaurus.js?v=b02865d9";
+import { initDrive } from "./drive.js?v=b02865d9";
+import { findRhymes } from "./rhymemap.js?v=b02865d9";
 
 const VERSION = new URL(import.meta.url).search;
 

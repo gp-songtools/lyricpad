@@ -2,6 +2,16 @@
 
 All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, so entries are grouped by date. The version shown in the page footer is a content hash, not a release number.
 
+## 2026-11-16 — Longer Topic / feel
+
+### Changed
+
+- **Topic / feel** (Suggest lines tab) is now a multi-line box that grows to fit, so a whole paragraph is easy to read. Press Enter for a new line.
+
+### Fixed
+
+- Stray characters (`✎ ">`) no longer show at the top left of the page.
+
 ## 2026-11-14 — New GP Blueprint section tags
 
 ### Fixed

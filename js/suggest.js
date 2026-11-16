@@ -2,7 +2,7 @@
 // The key is kept in this browser only (localStorage, or sessionStorage if "remember" is off)
 // and is sent straight to the provider - never anywhere else.
 
-import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=df5a0ea6";
+import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=b02865d9";
 
 const CLAUDE_MODELS = [
   { id: "claude-opus-5-5", label: "Claude Opus 5.5 — best writing (~2¢ per request)" },
@@ -312,7 +312,14 @@ export function initSuggest(editor) {
 
   // Topic is remembered per browser.
   els.topic.value = readStore("localStorage", "topic") || "";
-  els.topic.addEventListener("input", () => writeStore("localStorage", "topic", els.topic.value));
+  // The topic box grows to show the whole text, so a paragraph can be read without scrolling.
+  const fitTopic = () => {
+    if (!els.topic.offsetParent) return; // hidden tab: fit when it's shown
+    els.topic.style.height = "auto";
+    els.topic.style.height = els.topic.scrollHeight + 2 + "px";
+  };
+  els.topic.addEventListener("input", () => { writeStore("localStorage", "topic", els.topic.value); fitTopic(); });
+  new ResizeObserver(fitTopic).observe(els.topic.parentElement);
 
   function mode() { return els.modeNext.checked ? "next" : "rewrite"; }
 

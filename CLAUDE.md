@@ -3,7 +3,7 @@
 ## Directory map
 - `index.html`, `help.html`, `privacy.html`, `terms.html`, `css/style.css` — pages and styles
 - `CHANGELOG.md` — user-facing changes by date, newest first (Added / Changed / Fixed); `changelog.html` renders it in the browser; edit only the `.md`
-- `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `structure.js` (song-from-structure parser + prompt), `rhymemap.js` (rhyme colours in the editor), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret)
+- `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `structure.js` (song-from-structure parser + prompt), `rhymemap.js` (rhyme colours in the editor), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret), `spec.js` (song spec: inputs and writing Lyrics/title, no DOM) + `specui.js` (its panel, "From the song spec" box, Copy › Add to song spec), `songspec.js` (copy of gp-songtools/toolsmenu `songspec/songspec.js`; never edit here)
 - `data/` — `dict.txt` (CMU pronunciations), `thesaurus.txt` (WordNet + Moby); generated, don't hand-edit
 - `tools/` — `stamp-version.sh`, `build_dict.py`, `build_thesaurus.py`
 - `vendor/anthropic-sdk-1.3.0.js` — bundled Anthropic SDK; don't edit
@@ -13,13 +13,14 @@
 - Serve: `python3 -m http.server 8000 -b 127.0.0.1 >/dev/null 2>&1 &`
 - Check served: `curl -sf -o /dev/null http://127.0.0.1:8000/ && echo up`
 - Syntax check: `for f in js/*.js; do node --check "$f" || echo "FAIL $f"; done`
+- Song spec tests: `node --test tests/*.test.mjs` (no dependencies)
 - Stamp version: `tools/stamp-version.sh` (prints only `version <hash> (<date>)`)
 - Rebuild dict: `python3 tools/build_dict.py cmudict.dict en_50k.txt words.txt > data/dict.txt` (sources downloaded separately; see script header)
 - Rebuild thesaurus: `python3 tools/build_thesaurus.py data/dict.txt wordnet_dict/ moby.txt > data/thesaurus.txt`
 - Push: `git push -q -u origin main`
 
 ## Testing
-- No test suite in repo; write throwaway Playwright scripts in the scratchpad, not the repo.
+- Repo tests: `tests/*.test.mjs` (song spec, Node's built-in runner). Write throwaway Playwright scripts in the scratchpad, not the repo.
 - Playwright + Chromium are preinstalled: `require('playwright')`, `chromium.launch()`; never `playwright install`.
 - Sandbox can't reach the live site, Google, or CDNs: mock with `page.route`.
 - Mock `https://accounts.google.com/**` with a fake `window.google.accounts.oauth2` (`initTokenClient`, `hasGrantedAllScopes`, `revoke`); an empty stub causes `google is not defined`.
@@ -39,6 +40,7 @@
 - Every `.html` page ends with the Cloudflare Web Analytics snippet (same token on all GP Song Tools); add it to any new page. Credits live on the suite page `gp-songtools.github.io/toolsmenu/privacy.html#credits` (repo `gp-songtools/toolsmenu`); update it and `README.md` Credits when adding a data source or library.
 
 ## Gotchas
+- Song spec (format: gp-songtools/toolsmenu `songspec/SPEC.md`): Lyricpad owns only Lyrics (saved exactly as written, [tags] kept) and `title`; it only reads Structure, Idea structure and Idea, and must work unchanged without them. Drive saves stay lyrics-only `.txt`. Update `songspec.js` only by copying it from toolsmenu (`node toolsmenu/songspec/check-copies.js`).
 - Imports carry `?v=<hash>`; never hand-edit stamps, rerun the script.
 - Google sign-in popup must open synchronously from a click: nothing awaited before `requestAccessToken`.
 - Google script is preloaded at page load (`prepareSignIn`) for that reason.

@@ -2,6 +2,14 @@
 
 All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, so entries are grouped by date. The version shown in the page footer is a content hash, not a release number.
 
+## 2026-11-18 — Song spec
+
+### Added
+
+- **Song spec**: the song file shared by the GP Song Tools in this browser. A panel under the editor shows which tool filled each part and when, and lets you clear a part, start a new song, open a `.songspec.md` file or download one to hand to Claude.
+- **Copy ▾ › Add to song spec** saves your lyrics exactly as written, [tags] included, plus the title. It warns if the lyrics have no section tags (Suno reads the structure from them) and asks before replacing lyrics you edited in the file by hand. Saving to Google Drive is unchanged: still just the lyrics.
+- **From the song spec** (Suggest lines tab): when GP Blueprint or Idea Wizard saved a structure, choose which one to use and fill the structure box with one click. The newest one that isn't out of date is picked by default, and a note says when one was built from an older structure. Idea Wizard's idea can fill **Topic / feel** and the title. All optional: with nothing in the song spec, everything works as before.
+
 ## 2026-11-16 — Longer Topic / feel
 
 ### Changed

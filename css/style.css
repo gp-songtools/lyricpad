@@ -359,3 +359,15 @@ button:disabled { opacity: .55; cursor: default; }
 @media (max-width: 480px) {
   .topbar .status { display: none; }
 }
+
+/* Song spec (shared with the other GP Song Tools; panel drawn by js/songspec.js) */
+.spec-panel { padding: 0 1rem .25rem; color: var(--ink); }
+.spec-panel .ssp { margin: .5rem 0; }
+.spec-in { border: 1px solid var(--line); border-radius: 8px; padding: .5rem .7rem; margin-bottom: .75rem; background: var(--accent-soft); }
+.spec-in p { margin: .2rem 0; }
+.spec-in-head { font-weight: 600; }
+.spec-in-row { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; margin: .4rem 0; }
+.spec-in-row select { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: .15rem .3rem; max-width: 100%; }
+.spec-in-text { flex: 1 1 12rem; min-width: 0; overflow-wrap: anywhere; }
+.spec-ok { color: var(--accent); font-weight: 600; }
+.spec-warn { color: var(--warn, #b07a00); }

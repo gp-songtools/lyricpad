@@ -19,6 +19,8 @@ A small, fast lyric-writing app that runs entirely in the browser.
 
 - **Write a whole song from a structure** (optional, same AI settings) — paste a Song Structure copied from [GP Blueprint](https://gp-songtools.github.io/gp-blueprint/) (or from [Idea Wizard](https://gp-songtools.github.io/ideawizard/)'s Copy song structure, same format, with each section's story in its description) and the AI writes lyrics about the Topic that fit each section's line count, per-line syllables and rhyme scheme. Section tags are kept, each line's syllables are checked locally, and the result can replace the song, go at the end, or be copied. The parser (`js/structure.js`) follows the format in GP Blueprint's `docs/structure-format.md`, and also reads its older format.
 
+- **Song spec** — Lyricpad reads and writes the GP Song Tools [song spec](https://github.com/gp-songtools/toolsmenu/blob/main/songspec/SPEC.md), one file per song that every tool fills in its own part of, shared in this browser. **Copy ▾ › Add to song spec** saves the lyrics (with [tags]) and title. **From the song spec** (Suggest lines tab) offers GP Blueprint's or Idea Wizard's structure (newest by default), and Idea Wizard's topic and title. All optional. Code: `js/spec.js`, `js/specui.js`; `js/songspec.js` is a copy of the toolsmenu library; tests: `node --test tests/*.test.mjs`.
+
 A **Help** page (`help.html`, linked from the app's header and footer) explains every feature for users.
 
 Everything except line suggestions runs offline in the browser, with no server and no API keys.

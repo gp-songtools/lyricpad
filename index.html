@@ -14,7 +14,7 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=4d43e3ec">
+  <link rel="stylesheet" href="css/style.css?v=06a88199">
 </head>
 <body>
   <header class="topbar">
@@ -39,6 +39,7 @@
               <button type="button" data-copy="all">Copy lyrics<small>Exactly as written, [tags] included</small></button>
               <button type="button" data-copy="strip">Copy without [tags]<small>Removes [Verse], [Chorus] and any other text in square brackets</small></button>
               <label><input type="checkbox" id="copyTitle"> Include the song title at the top</label>
+              <button type="button" data-copy="spec">Add to song spec<small>Saves the lyrics with their [tags], and the title, to the song spec the GP Song Tools share</small></button>
             </div>
           </div>
         </div>
@@ -61,6 +62,7 @@
           </select>
         </label>
         <span id="saveState" class="save-state"></span></div>
+      <div id="specPanel" class="spec-panel"></div>
     </section>
 
     <section class="panel side-panel" aria-label="Rhymes and suggestions">
@@ -141,6 +143,8 @@
             </div>
           </details>
 
+          <div id="specIn" class="spec-in" hidden></div>
+
           <label class="field">Topic / feel
             <textarea id="topic" rows="2" placeholder="e.g. leaving a small town, bittersweet. Write as much as you like: the box grows to fit." autocomplete="off"></textarea>
           </label>
@@ -204,7 +208,7 @@
   <footer class="site-foot">
     Lyricpad — write lyrics with live syllable counts, rhymes and a thesaurus.
     <a href="help.html" target="_blank" rel="noopener">Help</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits" target="_blank" rel="noopener">Credits</a>
-    · <button type="button" id="version" class="ver" data-build="4d43e3ec" data-date="2026-11-16" title="Click to check whether a newer version is available">Version 4d43e3ec · 2026-11-16</button>
+    · <button type="button" id="version" class="ver" data-build="06a88199" data-date="2026-11-18" title="Click to check whether a newer version is available">Version 06a88199 · 2026-11-18</button>
   </footer>
   <dialog id="songsDialog" class="songs-dialog" aria-labelledby="songsTitle">
     <div class="dlg-head">
@@ -227,7 +231,7 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=4d43e3ec"></script>
+  <script type="module" src="js/app.js?v=06a88199"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2c5b0c69f74b496998f02d0e1f651bd5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

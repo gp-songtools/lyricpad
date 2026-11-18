@@ -1,10 +1,11 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=4d43e3ec";
-import { initSuggest } from "./suggest.js?v=4d43e3ec";
-import { initThesaurus } from "./thesaurus.js?v=4d43e3ec";
-import { initDrive } from "./drive.js?v=4d43e3ec";
-import { findRhymes } from "./rhymemap.js?v=4d43e3ec";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=06a88199";
+import { initSuggest } from "./suggest.js?v=06a88199";
+import { initThesaurus } from "./thesaurus.js?v=06a88199";
+import { initDrive } from "./drive.js?v=06a88199";
+import { findRhymes } from "./rhymemap.js?v=06a88199";
+import { initSpec } from "./specui.js?v=06a88199";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -350,6 +351,7 @@ copyMenu.addEventListener("click", (e) => {
   const kind = e.target.closest("[data-copy]")?.dataset.copy;
   if (!kind) return;
   showCopyMenu(false);
+  if (kind === "spec") return specUi ? specUi.addLyrics() : toast("The song spec couldn't start in this browser");
   const strip = kind === "strip";
   const lyrics = strip ? stripSongTags(els.lyrics.value) : els.lyrics.value.trim();
   if (!lyrics) return toast(strip && els.lyrics.value.trim() ? "Nothing left to copy once the [tags] are removed" : "Nothing to copy yet");
@@ -503,6 +505,8 @@ const thesaurus = safeInit("Thesaurus", () => initThesaurus({
   copy,
   toast,
 }));
+// The GP Song Tools song spec: panel under the editor, optional inputs above Topic / feel.
+const specUi = safeInit("Song spec", () => initSpec({ toast }));
 const drive = safeInit("Google Drive", () => initDrive({
   title: () => els.title.value,
   text: () => els.lyrics.value,

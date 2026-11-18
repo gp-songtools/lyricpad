@@ -176,6 +176,13 @@
   </ol>
   <div class="tip">A whole song is a bigger job than a few lines: it can take a minute, and with <b>Fast mode</b> off the syllable counts are usually closer.</div>
 
+  <h3 id="songspec">The song spec</h3>
+  <p>The GP Song Tools share one <b>song spec</b> per song: a file each tool fills in its own part of (GP Blueprint's style and structure, Idea Wizard's idea, Lyricpad's lyrics…), kept in this browser so the next tool you open can read it. The <b>Song spec</b> panel under the editor shows what's in it, who wrote each part and when. There you can <b>Clear</b> a part, start a <b>New song</b>, <b>Open file…</b> or <b>Download</b> the file to keep it or hand it to Claude.</p>
+  <ul>
+    <li><b>From the song spec</b> (Suggest lines tab) appears when there's something to use. <b>Structure</b> lists GP Blueprint's and Idea Wizard's structures; the newest one that isn't out of date is picked first. <span class="btn">Use structure</span> fills the structure box. <span class="btn">Use as topic</span> and <span class="btn">Use as title</span> take Idea Wizard's idea. It's all optional: type your own instead whenever you like.</li>
+    <li><b>Copy ▾ › Add to song spec</b> saves your lyrics exactly as written, with their [tags], and the title. Suno reads the song's sections from the tags, so Lyricpad warns you if there are none.</li>
+  </ul>
+
   <h2 id="saving">Saving songs</h2>
   <ul>
     <li><b>Automatically in your browser:</b> the song you're working on is kept on this device, so closing the tab won't lose it. It isn't shared between devices, though.</li>
@@ -183,6 +190,7 @@
     <li><b>Staying connected:</b> Google gives Lyricpad one hour of Drive access at a time, and it lasts even if you close the tab. When the hour is nearly up, the next time you tap a button Lyricpad asks Google for another hour. You may see Google's window open and close by itself. If you've been away longer than that, auto-save pauses (the bar says so) until you tap any button or press <span class="btn">Save</span>. Typing never opens Google's window.</li>
     <li><span class="btn">Songs</span> lists your saved songs to open on any device, and starts a <b>New song</b>.</li>
     <li><span class="btn">Export .txt</span> downloads the song as a text file.</li>
+    <li><b>Copy ▾ › Add to song spec</b> puts the lyrics (with [tags]) and title into the <a href="#songspec">song spec</a> the GP Song Tools share. Drive keeps saving just the lyrics.</li>
     <li><span class="btn">Copy ▾</span> puts the song on your clipboard, ready to paste anywhere. Choose <b>Copy lyrics</b> for the text exactly as written, or <b>Copy without [tags]</b> to remove everything in square brackets, like <i>[Verse 1]</i>, <i>[Chorus]</i> or <i>[x2]</i>. Lines that held only a tag are dropped, and blank lines between sections are kept. Tick <b>Include the song title at the top</b> to add the title (Lyricpad remembers this choice). Your lyrics in the editor are never changed.</li>
     <li>If you edit the same song on two devices, Lyricpad notices, stops auto-saving, and asks before overwriting the other version.</li>
   </ul>

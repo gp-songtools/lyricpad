@@ -14,7 +14,7 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=831891fa">
+  <link rel="stylesheet" href="css/style.css?v=d13c56d4">
 </head>
 <body>
   <header class="topbar">
@@ -72,6 +72,7 @@
         <button type="button" role="tab" id="tabSuggest" aria-selected="false" aria-controls="paneSuggest">Suggest lines</button>
       </div>
       <div class="pane" id="paneRhymes" role="tabpanel" aria-labelledby="tabRhymes">
+      <h2 class="vh">Rhymes</h2>
       <form class="search" id="searchForm">
         <input id="query" type="search" placeholder="Find rhymes for…" autocomplete="off" spellcheck="false" aria-label="Word to rhyme">
         <button type="submit">Search</button>
@@ -101,6 +102,7 @@
       </div>
 
       <div class="pane" id="paneThes" role="tabpanel" aria-labelledby="tabThes" hidden>
+        <h2 class="vh">Thesaurus</h2>
         <form class="search" id="thesForm">
           <input id="thesQuery" type="search" placeholder="Find synonyms for…" autocomplete="off" spellcheck="false" aria-label="Word to find synonyms for">
           <button type="submit">Search</button>
@@ -120,9 +122,10 @@
       </div>
 
       <div class="pane" id="paneSuggest" role="tabpanel" aria-labelledby="tabSuggest" hidden>
+        <h2 class="vh">Suggest lines</h2>
         <div class="suggest-scroll">
           <details class="settings" id="aiSettings">
-            <summary>AI settings <span class="muted">· <span id="aiSummary">not set up</span></span></summary>
+            <summary>AI settings <span class="muted">(<span id="aiSummary">not set up</span>)</span></summary>
             <div class="settings-body">
               <label class="field">Provider
                 <select id="aiProvider">
@@ -212,7 +215,7 @@
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
     <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits" target="_blank" rel="noopener">Credits</a>
-    <button type="button" id="version" class="ver" data-build="831891fa" data-date="2026-11-20" title="Click to check whether a newer version is available">Version 831891fa · 2026-11-20</button>
+    <button type="button" id="version" class="ver" data-build="d13c56d4" data-date="2026-11-20" title="Click to check whether a newer version is available">Version d13c56d4, 2026-11-20</button>
   </footer>
   <dialog id="songsDialog" class="songs-dialog" aria-labelledby="songsTitle">
     <div class="dlg-head">
@@ -221,7 +224,7 @@
     </div>
     <div class="dlg-actions">
       <button type="button" id="newSong">New song</button>
-      <button type="button" id="downloadTxt">Download .txt</button>
+      <button type="button" id="downloadTxt">Export .txt</button>
     </div>
     <div id="driveAccount" class="drive-account" hidden></div>
     <div id="driveSetup" class="drive-setup" hidden>
@@ -235,7 +238,7 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=831891fa"></script>
+  <script type="module" src="js/app.js?v=d13c56d4"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2c5b0c69f74b496998f02d0e1f651bd5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

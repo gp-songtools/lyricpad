@@ -1,7 +1,7 @@
 // Song spec UI: the shared panel under the editor, the "From the song spec" box above Topic / feel,
 // and "Add to song spec" in the Copy menu. Everything read from the spec is optional: with no spec,
 // or empty sections, Lyricpad works exactly as before.
-import { SongSpec as S, specInputs, usedSections, lyricsProblems, specWriteLyrics, overwriteReason } from "./spec.js?v=831891fa";
+import { SongSpec as S, specInputs, usedSections, lyricsProblems, specWriteLyrics, overwriteReason } from "./spec.js?v=d13c56d4";
 
 const $ = (id) => document.getElementById(id);
 const USED_KEY = "lyricpad:spec:used"; // what the last "Write lyrics" took from the spec

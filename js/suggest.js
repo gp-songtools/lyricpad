@@ -2,7 +2,7 @@
 // The key is kept in this browser only (localStorage, or sessionStorage if "remember" is off)
 // and is sent straight to the provider - never anywhere else.
 
-import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=831891fa";
+import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=d13c56d4";
 
 const CLAUDE_MODELS = [
   { id: "claude-opus-5-5", label: "Claude Opus 5.5 — best writing (~2¢ per request)" },
@@ -518,7 +518,8 @@ export function initSuggest(editor) {
       const s = editor.lineSyllables(text);
       const count = s ? (s.min === s.max ? `${s.min}` : `${s.min}–${s.max}`) : "0";
       const fits = targetSyl && s && s.min <= targetSyl && targetSyl <= s.max;
-      li.innerHTML = `<span class="syl ${fits ? "fits" : ""}" title="syllables">${count}</span><span class="text"></span>
+      const shown = targetSyl && !fits ? `${count} of ${targetSyl}` : count;
+      li.innerHTML = `<span class="syl ${fits ? "fits" : ""}" title="syllables">${shown}</span><span class="text"></span>
         <span class="acts"><button type="button" data-act="use">${forMode === "rewrite" ? "Replace line" : "Insert below"}</button>
         <button type="button" data-act="copy">Copy</button></span>`;
       li.querySelector(".text").textContent = text;
@@ -638,7 +639,7 @@ export function initSuggest(editor) {
           row.className = "song-line";
           const syl = document.createElement("span");
           syl.className = "syl" + (fits ? " fits" : "");
-          syl.textContent = want && !fits ? `${got}/${want}` : got;
+          syl.textContent = want && !fits ? `${got} of ${want}` : got;
           syl.title = want ? `${got} syllables (target ${want})` : `${got} syllables`;
           const t = document.createElement("span");
           t.className = "text";

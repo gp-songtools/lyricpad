@@ -2,7 +2,7 @@
 // Lyricpad owns Lyrics (with [section] tags, ready for Suno) and the title. It only reads the
 // structures (GP Blueprint's Structure, Idea Wizard's Idea structure) and Idea Wizard's Idea, and
 // works the same without them. No DOM code here.
-import "./songspec.js?v=831891fa"; // copy of gp-songtools/toolsmenu songspec/songspec.js; sets globalThis.SongSpec
+import "./songspec.js?v=d13c56d4"; // copy of gp-songtools/toolsmenu songspec/songspec.js; sets globalThis.SongSpec
 
 export const SongSpec = globalThis.SongSpec;
 export const TOOL = "lyricpad";

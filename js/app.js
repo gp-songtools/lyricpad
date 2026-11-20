@@ -1,11 +1,11 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=831891fa";
-import { initSuggest } from "./suggest.js?v=831891fa";
-import { initThesaurus } from "./thesaurus.js?v=831891fa";
-import { initDrive } from "./drive.js?v=831891fa";
-import { findRhymes } from "./rhymemap.js?v=831891fa";
-import { initSpec } from "./specui.js?v=831891fa";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=d13c56d4";
+import { initSuggest } from "./suggest.js?v=d13c56d4";
+import { initThesaurus } from "./thesaurus.js?v=d13c56d4";
+import { initDrive } from "./drive.js?v=d13c56d4";
+import { findRhymes } from "./rhymemap.js?v=d13c56d4";
+import { initSpec } from "./specui.js?v=d13c56d4";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -134,9 +134,12 @@ function markCurrent() {
   const s = lineData[i];
   const nonEmpty = lineData.filter(Boolean).length;
   const syl = s ? (s.min === s.max ? s.min : `${s.min}–${s.max}`) : 0;
-  els.lineInfo.textContent =
-    `Line ${i + 1} · ${syl} syllable${syl === 1 ? "" : "s"}` +
-    (s?.guessed ? " (some estimated)" : "") + ` · ${nonEmpty} lyric line${nonEmpty === 1 ? "" : "s"}`;
+  const parts = [
+    `Line ${i + 1}`,
+    `${syl} syllable${syl === 1 ? "" : "s"}` + (s?.guessed ? " (some estimated)" : ""),
+    `${nonEmpty} lyric line${nonEmpty === 1 ? "" : "s"}`,
+  ];
+  els.lineInfo.replaceChildren(...parts.map((t) => Object.assign(document.createElement("span"), { textContent: t })));
 }
 
 let saveTimer;
@@ -149,6 +152,12 @@ els.lyrics.addEventListener("input", () => {
 els.title.addEventListener("input", () => { store.set("title", els.title.value); drive?.edited(); });
 document.addEventListener("selectionchange", () => { if (document.activeElement === els.lyrics) markCurrent(); });
 new ResizeObserver(() => renderEditor()).observe(els.scroll);
+// Re-wrap when the text column itself changes width (a scrollbar appearing, the gutter resizing).
+let textWidth = 0;
+new ResizeObserver(([e]) => {
+  const w = Math.round(e.contentRect.width);
+  if (w !== textWidth) { textWidth = w; renderEditor(); }
+}).observe(els.lyrics.parentElement);
 
 // Word under the cursor, or the last word of the nearest line above if the cursor is on a blank line.
 function wordForRhyme() {
@@ -451,7 +460,19 @@ for (const [b] of tabs) b.addEventListener("click", () => {
 });
 // Looking up rhymes always brings the Rhymes tab forward.
 const _search = search;
-search = function () { if ($("paneRhymes").hidden) showTab($("tabRhymes")); _search(); };
+search = function () {
+  if ($("paneRhymes").hidden) showTab($("tabRhymes"));
+  _search();
+  revealOnPhone($("paneRhymes"));
+};
+// On a phone the tools sit below the editor: bring fresh results into view if they're off screen.
+function revealOnPhone(el) {
+  if (!matchMedia("(max-width: 900px)").matches) return;
+  const r = el.getBoundingClientRect();
+  if (r.top > innerHeight - 80 || r.bottom < 0) {
+    el.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+}
 
 // ---------- line suggestions ----------
 // Replace a range of the textarea in a way that keeps the browser's undo history where possible.
@@ -551,7 +572,7 @@ fetch("data/dict.txt" + VERSION)
   .then((text) => {
     lexicon = new Lexicon(text);
     sylCache.clear();
-    els.status.textContent = `${lexicon.entries.length.toLocaleString()} words loaded`;
+    els.status.textContent = `Dictionary ready: ${lexicon.entries.length.toLocaleString()} words`;
     renderEditor();
     if (pendingQuery) search();
   })

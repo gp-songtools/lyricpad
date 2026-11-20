@@ -7,7 +7,7 @@
   --ink: #1b1e2b;
   --muted: #57534e;
   --line: #d6d3d1;
-  --edge: #8c8680;
+  --edge: #7d7771;
   --accent: #d97706;
   --on-accent: #111111;
   --accent-ink: #92400e;
@@ -63,6 +63,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 a { color: var(--accent-ink); text-underline-offset: 2px; }
 :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+html, .editor-scroll, .results, .suggest-scroll, .song-list { scrollbar-color: var(--edge) transparent; }
+.results, .suggest-scroll, .song-list { scrollbar-width: thin; }
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* ---------- buttons ---------- */
 button {
@@ -104,10 +107,11 @@ button.linkish:hover { background: none; color: var(--ink); }
 .help-link, .theme-btn {
   display: inline-flex; align-items: center; gap: .35rem; min-height: var(--tap); padding: .3rem .75rem;
   font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; border-radius: 999px;
-  border: 1px solid var(--edge); background: var(--paper); color: var(--ink); text-decoration: none;
+  border: 1px solid transparent; background: transparent; color: var(--ink); text-decoration: none;
 }
+.theme-btn:hover { background: var(--paper); border-color: var(--line); }
 .help-link { margin-left: auto; }
-.help-link:hover { background: var(--sunk); border-color: var(--ink); }
+.help-link:hover { background: var(--paper); border-color: var(--line); }
 
 .site-foot {
   display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .35rem 1.1rem;
@@ -133,6 +137,7 @@ button.linkish:hover { background: none; color: var(--ink); }
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-panel);
   display: flex; flex-direction: column; min-height: 0; overflow: hidden;
 }
+.editor-panel:has(#lyrics:focus-visible) { border-color: var(--ring); box-shadow: 0 0 0 1px var(--ring); }
 .panel-head {
   display: flex; align-items: center; gap: .5rem .75rem; padding: .6rem .75rem .6rem 1rem;
   border-bottom: 1px solid var(--line);
@@ -164,22 +169,22 @@ button.linkish:hover { background: none; color: var(--ink); }
   padding: .45rem 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: var(--fs-sm);
   font-variant-numeric: tabular-nums;
 }
-.panel-foot #lineInfo { color: var(--ink); }
+.panel-foot #lineInfo { color: var(--ink); display: inline-flex; flex-wrap: wrap; gap: .1rem 1rem; }
 
 /* ---------- editor: the one bold thing ---------- */
 /* Textarea grows with its content, gutter sits beside it, the wrapper scrolls. */
-.editor-scroll { flex: 1; overflow: auto; }
+.editor-scroll { flex: 1; overflow: auto; scrollbar-gutter: stable; }
 .editor { display: flex; min-height: 100%; }
 .gutter {
-  flex: 0 0 3.5rem; background: var(--sunk); border-right: 1px solid var(--line);
-  padding: 1rem 0; font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted);
+  flex: 0 0 var(--gutter-w, 4.25rem); min-width: 0; overflow: hidden; background: var(--sunk); border-right: 1px solid var(--line);
+  padding: 1rem 0; font-size: var(--fs-base); font-weight: 650; font-variant-numeric: tabular-nums; color: var(--ink);
   user-select: none;
 }
 .gutter div {
   display: flex; align-items: flex-start; justify-content: flex-end; padding: 0 .7rem;
   line-height: var(--lh); white-space: nowrap;
 }
-.gutter div.current { color: var(--ink); background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.gutter div.current { color: var(--accent-ink); background: var(--accent-soft); }
 .gutter .guess::after { content: "?"; color: var(--warn); margin-left: 1px; }
 .text-wrap { position: relative; flex: 1; min-width: 0; }
 #lyrics, .mirror {
@@ -199,16 +204,16 @@ button.linkish:hover { background: none; color: var(--ink); }
 /* Rhyme colours: highlights drawn behind the textarea's text. No padding, so the text doesn't shift. */
 .mirror mark { color: transparent; border-radius: 3px; box-shadow: 0 0 0 2px var(--rh); background: var(--rh); }
 .rh0 { --rh: #fde68a; } .rh1 { --rh: #bae6fd; } .rh2 { --rh: #bbf7d0; } .rh3 { --rh: #fbcfe8; }
-.rh4 { --rh: #ddd6fe; } .rh5 { --rh: #fed7aa; } .rh6 { --rh: #99f6e4; } .rh7 { --rh: #e5e7a0; }
+.rh4 { --rh: #ddd6fe; } .rh5 { --rh: #fed7aa; } .rh6 { --rh: #99f6e4; } .rh7 { --rh: #fca5a5; }
 :root[data-theme="dark"] .rh0 { --rh: #6b5410; } :root[data-theme="dark"] .rh1 { --rh: #164a6b; }
 :root[data-theme="dark"] .rh2 { --rh: #2a5a22; } :root[data-theme="dark"] .rh3 { --rh: #6b2438; }
 :root[data-theme="dark"] .rh4 { --rh: #45307a; } :root[data-theme="dark"] .rh5 { --rh: #6e3e14; }
-:root[data-theme="dark"] .rh6 { --rh: #165a50; } :root[data-theme="dark"] .rh7 { --rh: #55551a; }
+:root[data-theme="dark"] .rh6 { --rh: #165a50; } :root[data-theme="dark"] .rh7 { --rh: #5a2f5a; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) .rh0 { --rh: #6b5410; } :root:not([data-theme]) .rh1 { --rh: #164a6b; }
   :root:not([data-theme]) .rh2 { --rh: #2a5a22; } :root:not([data-theme]) .rh3 { --rh: #6b2438; }
   :root:not([data-theme]) .rh4 { --rh: #45307a; } :root:not([data-theme]) .rh5 { --rh: #6e3e14; }
-  :root:not([data-theme]) .rh6 { --rh: #165a50; } :root:not([data-theme]) .rh7 { --rh: #55551a; }
+  :root:not([data-theme]) .rh6 { --rh: #165a50; } :root:not([data-theme]) .rh7 { --rh: #5a2f5a; }
 }
 .rhyme-colours { display: flex; align-items: center; gap: .45rem; color: var(--muted); white-space: nowrap; }
 .rhyme-colours select, .options select, .spec-in-row select {
@@ -284,7 +289,10 @@ button.linkish:hover { background: none; color: var(--ink); }
 .word:hover { background: var(--accent-soft); color: var(--ink); border: 0; }
 .word.rare { color: var(--muted); }
 .word.near { font-style: italic; }
-.word sup { font-family: var(--font-ui); font-size: var(--fs-xs); font-weight: 600; color: var(--muted); margin-left: .15rem; font-variant-numeric: tabular-nums; }
+.word sup {
+  font-family: var(--font-ui); font-size: var(--fs-xs); font-weight: 650; color: var(--muted); font-variant-numeric: tabular-nums;
+  vertical-align: baseline; margin-left: .3rem; padding: 0 .3rem; border-radius: 4px; background: var(--sunk);
+}
 .more { font-size: var(--fs-sm); margin-top: .4rem; min-height: 2rem; padding: .2rem .7rem; }
 
 /* ---------- thesaurus ---------- */
@@ -304,7 +312,7 @@ button.linkish:hover { background: none; color: var(--ink); }
 .check input { accent-color: var(--accent); width: 1rem; height: 1rem; margin: 0; flex: none; }
 .quote {
   font-family: var(--font-lyric); font-size: 1.0625rem; font-weight: 400; padding: .55rem .75rem; line-height: 1.5;
-  border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 var(--r-ctl) var(--r-ctl) 0; min-height: 2.5rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: var(--accent-soft); border-radius: var(--r-ctl); min-height: 2.5rem;
 }
 .quote.empty { color: var(--muted); font-style: italic; }
 .seg { display: flex; border: 1px solid var(--edge); border-radius: var(--r-ctl); overflow: hidden; font-size: var(--fs-sm); }
@@ -357,7 +365,7 @@ button.linkish:hover { background: none; color: var(--ink); }
 
 .suggestions { list-style: none; margin: .5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
 .suggestions li {
-  display: grid; grid-template-columns: 2.25rem 1fr; gap: .3rem .7rem; align-items: baseline;
+  display: grid; grid-template-columns: minmax(2.25rem, auto) 1fr; gap: .3rem .7rem; align-items: baseline;
   padding: .65rem .75rem; border: 1px solid var(--line); border-radius: 10px;
 }
 .syl {
@@ -377,7 +385,7 @@ button.linkish:hover { background: none; color: var(--ink); }
 }
 .song-out { display: flex; flex-direction: column; gap: .7rem; }
 .song-sec .tag { font-size: var(--fs-sm); color: var(--muted); font-weight: 650; margin: .3rem 0 .2rem; }
-.song-line { display: grid; grid-template-columns: 3rem 1fr; gap: .6rem; align-items: baseline; }
+.song-line { display: grid; grid-template-columns: 4.5rem 1fr; gap: .6rem; align-items: baseline; }
 .song-line .text { font-family: var(--font-lyric); font-size: var(--fs-base); line-height: 1.5; }
 
 /* ---------- Songs dialog / Google Drive ---------- */
@@ -450,13 +458,15 @@ button.linkish:hover { background: none; color: var(--ink); }
 }
 @media (max-width: 900px) {
   html, body { height: auto; }
-  .layout { grid-template-columns: 1fr; padding: 0 .75rem .75rem; gap: .75rem; }
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 0 .75rem .75rem; gap: .75rem; }
   .topbar { padding: .6rem .9rem; }
   /* The sheet gets a fixed writing height; title, footer and song spec sit around it. */
   .editor-panel { height: auto; }
   .editor-scroll { flex: none; height: 60vh; height: 60dvh; min-height: 18rem; }
-  .side-panel { height: 82vh; height: 82dvh; min-height: 26rem; }
-  #rhymeHere { display: none; }
+  /* One page scroll on phones: the tools panel grows with its results instead of scrolling inside. */
+  .side-panel { height: auto; overflow: visible; }
+  .results, .suggest-scroll { overflow: visible; }
+  .tabs { position: sticky; top: 0; z-index: 2; background: var(--paper); border-radius: var(--r-panel) var(--r-panel) 0 0; }
 }
 @media (max-width: 600px) {
   /* Title gets its own row; the buttons go underneath. */
@@ -467,8 +477,8 @@ button.linkish:hover { background: none; color: var(--ink); }
   /* The Copy button may wrap to the left, so hang its menu from the header's right edge. */
   .copy-wrap { position: static; }
   .copy-menu { right: .75rem; top: calc(100% - .25rem); }
-  .gutter { flex-basis: 2.75rem; }
-  .gutter div { padding: 0 .5rem; }
+  .gutter { --gutter-w: 3.4rem; font-size: var(--fs-md); }
+  .gutter div { padding: 0 .45rem; }
   #lyrics, .mirror { padding: .9rem .9rem 3rem; }
   .mirror div.current { box-shadow: -.9rem 0 0 var(--accent-soft), .9rem 0 0 var(--accent-soft); }
   .panel-foot { padding: .45rem .75rem; }
@@ -482,3 +492,5 @@ button.linkish:hover { background: none; color: var(--ink); }
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
 .spec-panel .ssp summary { padding: .4rem 0; min-height: 2rem; }
+/* Nothing written yet: no current-line band behind the placeholder. */
+.editor:has(#lyrics:placeholder-shown) :is(.gutter div.current, .mirror div.current) { background: none; box-shadow: none; }

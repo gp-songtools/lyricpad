@@ -16,5 +16,5 @@ d=$(grep -oE 'data-date="[^"]*"' index.html | head -1 | sed -E 's/.*"(.*)"/\1/' 
 if [ "$old" != "$v" ] || [ -z "$d" ]; then d=$(date -u +%Y-%m-%d); fi
 
 sed -i -E "s/\?v=[0-9a-z]+/?v=$v/g" *.html js/*.js
-sed -i -E "s/data-build=\"[^\"]*\"/data-build=\"$v\"/; s/data-date=\"[^\"]*\"/data-date=\"$d\"/; s/>Version [^<]*</>Version $v · $d</" index.html
+sed -i -E "s/data-build=\"[^\"]*\"/data-build=\"$v\"/; s/data-date=\"[^\"]*\"/data-date=\"$d\"/; s/>Version [^<]*</>Version $v, $d</" index.html
 echo "version $v ($d)"

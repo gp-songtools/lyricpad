@@ -6,55 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lyricpad Help</title>
   <meta name="description" content="How to use Lyricpad: syllable counts, rhymes, thesaurus, AI line suggestions and saving songs.">
-  <style>
-    :root {
-      --bg: #f6f4ef; --panel: #fffdf9; --ink: #23201b; --muted: #6f685d; --line: #e4ded3;
-      --accent: #b4532a; --accent-soft: #f6e3d8; --code: #ece7de; color-scheme: light;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root[data-theme="auto"] {
-        --bg: #171614; --panel: #201e1b; --ink: #ece6dc; --muted: #9a9286; --line: #34312c;
-        --accent: #e08a5f; --accent-soft: #3a2a21; --code: #2b2824; color-scheme: dark;
-      }
-    }
-    :root[data-theme="dark"] {
-      --bg: #171614; --panel: #201e1b; --ink: #ece6dc; --muted: #9a9286; --line: #34312c;
-      --accent: #e08a5f; --accent-soft: #3a2a21; --code: #2b2824; color-scheme: dark;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    main { max-width: 760px; margin: 0 auto; padding: 28px 16px 72px; }
-    h1, h2 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
-    h1 { font-size: 2.1rem; margin: .5rem 0 .25rem; }
-    h2 { font-size: 1.35rem; margin: 2.4rem 0 .5rem; scroll-margin-top: 16px; }
-    h3 { font-size: 1rem; margin: 1.4rem 0 .3rem; }
-    p.lede { color: var(--muted); margin: 0 0 1.5rem; font-size: 1.05rem; }
-    a { color: var(--accent); }
-    ul, ol { padding-left: 1.3rem; }
-    li { margin: .3rem 0; }
-    kbd {
-      font: .82em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--panel);
-      border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: .05em .4em;
-    }
-    .btn { font-weight: 600; white-space: nowrap; }
-    .back { display: inline-block; margin-bottom: .5rem; }
-    nav.toc {
-      background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: .8rem 1rem;
-      display: flex; flex-wrap: wrap; gap: .35rem .9rem; font-size: .92rem;
-    }
-    .tip {
-      background: var(--accent-soft); border-radius: 10px; padding: .7rem .9rem; margin: 1rem 0; font-size: .95rem;
-    }
-    .example {
-      font-family: "Iowan Old Style", Palatino, Georgia, serif; background: var(--panel); border: 1px solid var(--line);
-      border-radius: 10px; padding: .6rem .9rem; display: grid; grid-template-columns: 3rem 1fr; gap: 0 .6rem; margin: .8rem 0;
-    }
-    .example .n { font: .8rem system-ui, sans-serif; color: var(--muted); text-align: right; padding-top: .25rem; font-variant-numeric: tabular-nums; }
-    table { border-collapse: collapse; width: 100%; font-size: .95rem; margin: .5rem 0; }
-    th, td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
-    footer { margin-top: 3rem; font-size: .85rem; color: var(--muted); }
-  </style>
+  <link rel="stylesheet" href="css/pages.css?v=831891fa">
   <script>
     // Match the theme chosen in the app.
     (function () {
@@ -65,8 +17,13 @@
   </script>
 </head>
 <body>
+<header class="pagebar">
+  <a class="brand" href="./" title="Back to the Lyricpad editor"><span class="mark">Lyricpad</span></a>
+  <nav aria-label="Lyricpad pages"><a href="help.html" aria-current="page">Help</a><a href="changelog.html">Changelog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
+  <a class="open-app" href="./">Open the editor</a>
+</header>
+<div class="page-wrap">
 <main>
-  <a class="back" href="./">← Back to Lyricpad</a>
   <h1>Lyricpad Help</h1>
   <p class="lede">Lyricpad is a lyric editor that counts syllables and colours rhymes as you type, and helps you find rhymes, synonyms and fresh lines. Here's how each part works.</p>
 
@@ -115,12 +72,12 @@
     <li>On a computer, put the cursor on a word and press <kbd>Alt</kbd>+<kbd>R</kbd> or the <span class="btn">Rhyme this word</span> button. On a blank line, this rhymes the last word of the line above, which is handy right after you press Enter.</li>
   </ul>
   <p>Choose which kinds of rhyme you want:</p>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Option</th><th>What it finds</th><th>Example</th></tr>
     <tr><td><b>Perfect</b></td><td>The same sounds from the stressed vowel to the end</td><td><i>heart → start, apart</i></td></tr>
     <tr><td><b>Near</b></td><td>Slant rhymes: close, but not exact</td><td><i>heart → hard, dark</i>; <i>time → mine</i></td></tr>
     <tr><td><b>Vowel match</b></td><td>Same vowel sounds, any consonants</td><td><i>love → jump</i></td></tr>
-  </table>
+  </table></div>
   <p>Results are grouped by syllable count. Use the <b>syllables</b> filter to show only one length, and tick <b>Rare words</b> to include unusual ones. Tap a result to copy it.</p>
 
   <h3 id="rhyme-colours">Rhyme colours</h3>
@@ -196,14 +153,14 @@
   </ul>
 
   <h2 id="keys">Keyboard shortcuts</h2>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Keys</th><th>Does</th></tr>
     <tr><td>Double-click a word</td><td>Rhymes for it (or synonyms, if the Thesaurus tab is open)</td></tr>
     <tr><td><kbd>Alt</kbd>+<kbd>R</kbd></td><td>Rhymes for the word at the cursor</td></tr>
     <tr><td><kbd>Alt</kbd>+<kbd>T</kbd></td><td>Synonyms for the word at the cursor</td></tr>
     <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd></td><td>Save to Google Drive</td></tr>
     <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Z</kbd></td><td>Undo, including swapped-in synonyms and inserted suggestions</td></tr>
-  </table>
+  </table></div>
 
   <h2 id="faq">Questions</h2>
   <h3>A syllable count looks wrong.</h3>
@@ -215,8 +172,16 @@
   <h3>Can I change the colours?</h3>
   <p>Use the <span class="btn">Theme</span> button at the top right: Light, Dark, or Auto (follows your device).</p>
 
-  <footer><a href="./">Back to Lyricpad</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits">Credits</a></footer>
 </main>
+</div>
+<footer class="page-foot">
+  <a href="./">Lyricpad editor</a>
+  <a href="help.html">Help</a>
+  <a href="changelog.html">Changelog</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="terms.html">Terms</a>
+  <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits">Credits</a>
+</footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2c5b0c69f74b496998f02d0e1f651bd5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

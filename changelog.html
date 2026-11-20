@@ -14,46 +14,29 @@
     document.documentElement.dataset.theme = t === "dark" || t === "auto" ? t : "light";
   })();
 </script>
-<style>
-:root{--bg:#f6f4ef;--card:#fffdf9;--ink:#23201b;--mut:#7a7368;--ln:#e4ded3;--ac:#b4532a;--acf:#fff;--warn:#b3261e;
---fd:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--fb:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--fm:ui-monospace,SFMono-Regular,Menlo,monospace;
-color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171614;--card:#201e1b;--ink:#ece6dc;--mut:#9a9286;--ln:#34312c;--ac:#e08a5f;--acf:#1f120b;--warn:#f2847b;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#171614;--card:#201e1b;--ink:#ece6dc;--mut:#9a9286;--ln:#34312c;--ac:#e08a5f;--acf:#1f120b;--warn:#f2847b;color-scheme:dark}
-*,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--fb)}
-main{max-width:680px;margin:0 auto;padding:20px 16px 60px}
-h1{font:700 30px/1.1 var(--fd);margin:8px 0 6px;letter-spacing:-.02em}
-h2{font-family:var(--fd);margin:26px 0 10px;padding-top:14px;border-top:1px solid var(--ln)}
-a{color:var(--ac)}
-b,strong{font-weight:650}
-code{font-family:var(--fm);font-size:13.5px;background:var(--card);border:1px solid var(--ln);border-radius:4px;padding:1px 4px;overflow-wrap:anywhere}
-.sub{color:var(--mut);margin:0 0 20px;font-size:15px}
-.ver{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
-.ver .v{font-weight:700;font-size:20px;letter-spacing:-.01em}
-.ver time{color:var(--mut);font:500 14px var(--fb)}
-.ver .cur{font:700 12px var(--fb);background:var(--ac);color:var(--acf);border-radius:999px;padding:2px 9px}
-section>p{margin:0 0 10px}
-ul{list-style:none;padding:0;margin:8px 0 0}
-li{display:flex;gap:10px;align-items:flex-start;margin:0 0 9px}
-li>span:last-child{min-width:0}
-li ul{margin:6px 0 0}
-li li{display:list-item;list-style:disc;margin:0 0 4px 18px}
-.tag{flex:0 0 auto;min-width:72px;text-align:center;font:700 11.5px var(--fb);letter-spacing:.02em;text-transform:uppercase;border-radius:6px;padding:2px 6px;margin-top:3px;border:1px solid var(--ln)}
-.tag.new{background:var(--ac);color:var(--acf);border-color:var(--ac)}
-.tag.chg{background:var(--card);color:var(--ink)}
-.tag.fix{background:var(--card);color:var(--warn);border-color:var(--warn)}
-.msg{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:12px 14px}
-@media (max-width:420px){li{flex-direction:column;gap:4px}.tag{min-width:0}}
-</style>
+<link rel="stylesheet" href="css/pages.css?v=831891fa">
 </head>
 <body>
+<header class="pagebar">
+  <a class="brand" href="./" title="Back to the Lyricpad editor"><span class="mark">Lyricpad</span></a>
+  <nav aria-label="Lyricpad pages"><a href="help.html">Help</a><a href="changelog.html" aria-current="page">Changelog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
+  <a class="open-app" href="./">Open the editor</a>
+</header>
+<div class="page-wrap">
 <main>
 <h1>Changelog</h1>
-<p class="sub"><span id="intro">What changed in Lyricpad, newest first.</span> <a href="./">Back to the app</a></p>
+<p class="sub"><span id="intro">What changed in Lyricpad, newest first.</span></p>
 <div id="log"><p class="msg">Loading…</p></div>
 </main>
+</div>
+<footer class="page-foot">
+  <a href="./">Lyricpad editor</a>
+  <a href="help.html">Help</a>
+  <a href="changelog.html">Changelog</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="terms.html">Terms</a>
+  <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits">Credits</a>
+</footer>
 <script>
 // Renders CHANGELOG.md (the single source of truth) next to this page.
 (function () {

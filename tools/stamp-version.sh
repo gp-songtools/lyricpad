@@ -9,12 +9,12 @@ cd "$(dirname "$0")/.."
 
 # The stamps themselves are left out of the hash.
 strip='s/\?v=[0-9a-z]+/?v=/g; s/data-build="[^"]*"/data-build=""/g; s/data-date="[^"]*"/data-date=""/g; s/>Version [^<]*</>Version </g'
-v=$(cat index.html help.html privacy.html terms.html js/*.js css/*.css data/* | sed -E "$strip" | sha1sum | cut -c1-8)
+v=$(cat *.html js/*.js css/*.css data/* | sed -E "$strip" | sha1sum | cut -c1-8)
 
 old=$(grep -oE 'data-build="[0-9a-f]*"' index.html | head -1 | sed -E 's/.*"(.*)"/\1/' || true)
 d=$(grep -oE 'data-date="[^"]*"' index.html | head -1 | sed -E 's/.*"(.*)"/\1/' || true)
 if [ "$old" != "$v" ] || [ -z "$d" ]; then d=$(date -u +%Y-%m-%d); fi
 
-sed -i -E "s/\?v=[0-9a-z]+/?v=$v/g" index.html js/*.js
+sed -i -E "s/\?v=[0-9a-z]+/?v=$v/g" *.html js/*.js
 sed -i -E "s/data-build=\"[^\"]*\"/data-build=\"$v\"/; s/data-date=\"[^\"]*\"/data-date=\"$d\"/; s/>Version [^<]*</>Version $v · $d</" index.html
 echo "version $v ($d)"

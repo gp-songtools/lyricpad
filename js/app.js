@@ -1,11 +1,11 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=06a88199";
-import { initSuggest } from "./suggest.js?v=06a88199";
-import { initThesaurus } from "./thesaurus.js?v=06a88199";
-import { initDrive } from "./drive.js?v=06a88199";
-import { findRhymes } from "./rhymemap.js?v=06a88199";
-import { initSpec } from "./specui.js?v=06a88199";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=831891fa";
+import { initSuggest } from "./suggest.js?v=831891fa";
+import { initThesaurus } from "./thesaurus.js?v=831891fa";
+import { initDrive } from "./drive.js?v=831891fa";
+import { findRhymes } from "./rhymemap.js?v=831891fa";
+import { initSpec } from "./specui.js?v=831891fa";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -123,8 +123,11 @@ let lastCurrent = -1;
 function markCurrent() {
   const i = currentLineIndex();
   const rows = els.gutter.children;
-  if (rows[lastCurrent]) rows[lastCurrent].classList.remove("current");
-  if (rows[i]) rows[i].classList.add("current");
+  const marks = els.mirror.children; // the highlighter band behind the current line
+  for (const r of [rows, marks]) {
+    if (r[lastCurrent]) r[lastCurrent].classList.remove("current");
+    if (r[i]) r[i].classList.add("current");
+  }
   lastCurrent = i;
   try { suggest?.refreshTarget(); } catch (err) { console.error(err); }
 

@@ -6,20 +6,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lyricpad – Terms of Use</title>
   <meta name="description" content="Terms for using Lyricpad.">
-  <style>
-    :root { --bg: #f6f4ef; --ink: #23201b; --muted: #6f685d; --accent: #b4532a; color-scheme: light; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
-    h1 { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 2rem; margin: 0 0 .25rem; }
-    h2 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
-    p.meta { color: var(--muted); margin: 0 0 1.5rem; }
-    a { color: var(--accent); }
-    .back { display: inline-block; margin-bottom: 1.5rem; }
-  </style>
+  <link rel="stylesheet" href="css/pages.css?v=831891fa">
+  <script>
+    // Match the theme chosen in the app.
+    (function () {
+      let t = "light";
+      try { t = localStorage.getItem("lyricpad:theme") || "light"; } catch {}
+      document.documentElement.dataset.theme = t === "dark" || t === "auto" ? t : "light";
+    })();
+  </script>
 </head>
 <body>
+<header class="pagebar">
+  <a class="brand" href="./" title="Back to the Lyricpad editor"><span class="mark">Lyricpad</span></a>
+  <nav aria-label="Lyricpad pages"><a href="help.html">Help</a><a href="changelog.html">Changelog</a><a href="privacy.html">Privacy</a><a href="terms.html" aria-current="page">Terms</a></nav>
+  <a class="open-app" href="./">Open the editor</a>
+</header>
+<div class="page-wrap">
 <main>
-  <a class="back" href="./">← Back to Lyricpad</a>
   <h1>Terms of Use</h1>
   <p class="meta">Last updated: November 1, 2026</p>
 
@@ -40,6 +44,15 @@
   <h2>Contact</h2>
   <p>Questions can be raised on the project's <a href="https://github.com/gp-songtools/lyricpad/issues">GitHub issues page</a>.</p>
 </main>
+</div>
+<footer class="page-foot">
+  <a href="./">Lyricpad editor</a>
+  <a href="help.html">Help</a>
+  <a href="changelog.html">Changelog</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="terms.html">Terms</a>
+  <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits">Credits</a>
+</footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2c5b0c69f74b496998f02d0e1f651bd5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

@@ -64,11 +64,13 @@ then open http://localhost:8000. (Opening `index.html` straight from disk won't 
 
 ## Making changes
 
-Every script and stylesheet the page loads carries a version stamp (`?v=…`) so browsers never mix new files with stale cached ones after an update. The same version (plus the date it last changed) is shown in the page footer; click it to check whether a newer version has been published. Before committing changes to `index.html`, `js/`, `css/` or `data/`, run:
+Every script and stylesheet the page loads carries a version stamp (`?v=…`) so browsers never mix new files with stale cached ones after an update. The same version (plus the date it last changed) is shown in the page footer; click it to check whether a newer version has been published. Before committing changes to any `.html` page, `js/`, `css/` or `data/`, run:
 
 ```bash
 tools/stamp-version.sh
 ```
+
+The look is defined in `design-system/lyricpad/MASTER.md` (colours with checked contrast, type sizes, spacing, components) with the reasoning in `PLAN.md`. `css/style.css` styles the app; `css/pages.css` styles Help, Changelog, Privacy and Terms. Both define the same colour tokens at the top.
 
 ## Publishing on GitHub Pages
 

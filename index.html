@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eceae6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
   <title>Lyricpad</title>
   <meta name="description" content="A lyric editor with live syllable counts and a rhyme finder.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>">
@@ -14,9 +16,10 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=d13c56d4">
+  <link rel="stylesheet" href="css/style.css?v=5e0421cd">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
     <h1><span class="mark">Lyricpad</span></h1>
     <div class="status" id="status">Loading dictionary…</div>
@@ -24,7 +27,7 @@
     <button type="button" id="themeBtn" class="theme-btn" title="Switch between light, dark and automatic (follow your device) colours">Theme: Light</button>
   </header>
 
-  <main class="layout">
+  <main class="layout" id="main">
     <section class="panel editor-panel" aria-label="Lyrics editor">
       <div class="panel-head">
         <input id="title" class="song-title" placeholder="Untitled song" aria-label="Song title" spellcheck="false">
@@ -49,7 +52,7 @@
           <div class="gutter" id="gutter" aria-hidden="true"></div>
           <div class="text-wrap">
             <div class="mirror" id="mirror" aria-hidden="true"></div>
-            <textarea id="lyrics" spellcheck="true" placeholder="Start writing…&#10;&#10;Each line gets a live syllable count on the left.&#10;Double-click any word to look up its rhymes."></textarea>
+            <textarea id="lyrics" aria-label="Lyrics" spellcheck="true" placeholder="Start writing…&#10;&#10;Each line gets a live syllable count on the left.&#10;Double-click any word to look up its rhymes."></textarea>
           </div>
         </div>
       </div>
@@ -61,12 +64,12 @@
             <option value="all">All words</option>
           </select>
         </label>
-        <span id="saveState" class="save-state"></span></div>
+        <span id="saveState" class="save-state" aria-live="polite"></span></div>
       <div id="specPanel" class="spec-panel"></div>
     </section>
 
     <section class="panel side-panel" aria-label="Rhymes and suggestions">
-      <div class="tabs" role="tablist">
+      <div class="tabs" role="tablist" aria-label="Tools">
         <button type="button" role="tab" id="tabRhymes" aria-selected="true" aria-controls="paneRhymes">Rhymes</button>
         <button type="button" role="tab" id="tabThes" aria-selected="false" aria-controls="paneThes">Thesaurus</button>
         <button type="button" role="tab" id="tabSuggest" aria-selected="false" aria-controls="paneSuggest">Suggest lines</button>
@@ -215,7 +218,7 @@
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
     <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits" target="_blank" rel="noopener">Credits</a>
-    <button type="button" id="version" class="ver" data-build="d13c56d4" data-date="2026-11-20" title="Click to check whether a newer version is available">Version d13c56d4, 2026-11-20</button>
+    <button type="button" id="version" class="ver" data-build="5e0421cd" data-date="2026-11-20" title="Click to check whether a newer version is available">Version 5e0421cd, 2026-11-20</button>
   </footer>
   <dialog id="songsDialog" class="songs-dialog" aria-labelledby="songsTitle">
     <div class="dlg-head">
@@ -230,7 +233,7 @@
     <div id="driveSetup" class="drive-setup" hidden>
       <p>To save songs to Google Drive, Lyricpad needs a Google OAuth client ID (see “Google Drive setup” in the project README). If you have one, paste it here:</p>
       <div class="row">
-        <input id="driveClientId" placeholder="…apps.googleusercontent.com" autocomplete="off" spellcheck="false">
+        <input id="driveClientId" aria-label="Google OAuth client ID" placeholder="…apps.googleusercontent.com" autocomplete="off" spellcheck="false">
         <button type="button" id="driveClientSave">Use it</button>
       </div>
     </div>
@@ -238,7 +241,7 @@
     <div id="songList" class="song-list"></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=d13c56d4"></script>
+  <script type="module" src="js/app.js?v=5e0421cd"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2c5b0c69f74b496998f02d0e1f651bd5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

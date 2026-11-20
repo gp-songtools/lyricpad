@@ -1,11 +1,11 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=d13c56d4";
-import { initSuggest } from "./suggest.js?v=d13c56d4";
-import { initThesaurus } from "./thesaurus.js?v=d13c56d4";
-import { initDrive } from "./drive.js?v=d13c56d4";
-import { findRhymes } from "./rhymemap.js?v=d13c56d4";
-import { initSpec } from "./specui.js?v=d13c56d4";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=5e0421cd";
+import { initSuggest } from "./suggest.js?v=5e0421cd";
+import { initThesaurus } from "./thesaurus.js?v=5e0421cd";
+import { initDrive } from "./drive.js?v=5e0421cd";
+import { findRhymes } from "./rhymemap.js?v=5e0421cd";
+import { initSpec } from "./specui.js?v=5e0421cd";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -447,6 +447,7 @@ const tabs = [[$("tabRhymes"), $("paneRhymes")], [$("tabThes"), $("paneThes")], 
 function showTab(btn) {
   for (const [b, pane] of tabs) {
     b.setAttribute("aria-selected", String(b === btn));
+    b.tabIndex = b === btn ? 0 : -1; // roving tabindex: Tab reaches the open tab, arrows move between tabs
     pane.hidden = b !== btn;
   }
   store.set("tab", btn.id);
@@ -457,6 +458,17 @@ for (const [b] of tabs) b.addEventListener("click", () => {
   showTab(b);
   // Opening the thesaurus with a word selected in the lyrics looks that word up.
   if (b.id === "tabThes" && els.lyrics.selectionEnd > els.lyrics.selectionStart) thesaurus?.lookupFromEditor();
+});
+// Arrow keys, Home and End move between tabs (the usual tablist keys).
+document.querySelector(".tabs").addEventListener("keydown", (e) => {
+  const i = tabs.findIndex(([b]) => b === document.activeElement);
+  if (i < 0) return;
+  const n = tabs.length;
+  const j = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[e.key];
+  if (j === undefined) return;
+  e.preventDefault();
+  tabs[j][0].click();
+  tabs[j][0].focus();
 });
 // Looking up rhymes always brings the Rhymes tab forward.
 const _search = search;

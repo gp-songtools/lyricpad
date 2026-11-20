@@ -2,6 +2,21 @@
 
 All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, so entries are grouped by date. The version shown in the page footer is a content hash, not a release number.
 
+## 2026-11-20 — A new look
+
+### Changed
+
+- **Redesign**: a cleaner, easier-to-read look in light and dark. Your lyrics are on a white sheet, the line you're on is marked with a highlighter band, and the main button in each tab is amber.
+- **Syllable counts are bigger and bolder** in the left margin, and no text in the app is smaller than 13px.
+- **Rhyme this word** now shows on phones too. On a phone the tabs stay at the top of the screen while you scroll the results, and rhyme results scroll into view.
+- Syllable counts that miss the target now read **7 of 8** instead of 7/8.
+- Help, Changelog, Privacy and Terms share the app's look and a menu to move between them; Privacy and Terms now follow your Light/Dark theme.
+- Keyboard: a **Skip to content** link, and the arrow keys move between the Rhymes, Thesaurus and Suggest lines tabs.
+
+### Fixed
+
+- Syllable counts could sit beside the wrong line after reloading a long song in a narrow window.
+
 ## 2026-11-18 — Song spec
 
 ### Added

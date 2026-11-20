@@ -2,7 +2,7 @@
 // The key is kept in this browser only (localStorage, or sessionStorage if "remember" is off)
 // and is sent straight to the provider - never anywhere else.
 
-import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=d13c56d4";
+import { parseStructure, buildSongPrompt, assembleSong, parseSongAnswer, SONG_SYSTEM_PROMPT } from "./structure.js?v=5e0421cd";
 
 const CLAUDE_MODELS = [
   { id: "claude-opus-5-5", label: "Claude Opus 5.5 — best writing (~2¢ per request)" },
@@ -522,6 +522,7 @@ export function initSuggest(editor) {
       li.innerHTML = `<span class="syl ${fits ? "fits" : ""}" title="syllables">${shown}</span><span class="text"></span>
         <span class="acts"><button type="button" data-act="use">${forMode === "rewrite" ? "Replace line" : "Insert below"}</button>
         <button type="button" data-act="copy">Copy</button></span>`;
+      for (const b of li.querySelectorAll("button")) b.setAttribute("aria-label", `${b.textContent}: ${text}`);
       li.querySelector(".text").textContent = text;
       // The AI doesn't always keep to the words asked for, so check each line and say so.
       const problems = [];

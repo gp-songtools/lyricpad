@@ -153,3 +153,9 @@ th { font-size: var(--fs-sm); font-weight: 650; color: var(--muted); }
 }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 .page-foot a { display: inline-flex; align-items: center; min-height: 1.75rem; }
+
+.skip {
+  position: absolute; left: .75rem; top: -3rem; z-index: 20; padding: .5rem .9rem; border-radius: 8px;
+  background: var(--ink); color: var(--paper); font-weight: 650; text-decoration: none;
+}
+.skip:focus { top: .75rem; }

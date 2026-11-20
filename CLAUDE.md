@@ -1,7 +1,8 @@
 # Lyricpad
 
 ## Directory map
-- `index.html`, `help.html`, `privacy.html`, `terms.html`, `css/style.css` — pages and styles
+- `index.html`, `help.html`, `privacy.html`, `terms.html`, `css/style.css` (app), `css/pages.css` (help, changelog, privacy, terms) — pages and styles
+- `design-system/lyricpad/` — `MASTER.md` (tokens, contrast-checked colours, type floor 13px, components) and `PLAN.md`; follow them for UI changes
 - `CHANGELOG.md` — user-facing changes by date, newest first (Added / Changed / Fixed); `changelog.html` renders it in the browser; edit only the `.md`
 - `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `structure.js` (song-from-structure parser + prompt), `rhymemap.js` (rhyme colours in the editor), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret), `spec.js` (song spec: inputs and writing Lyrics/title, no DOM) + `specui.js` (its panel, "From the song spec" box, Copy › Add to song spec), `songspec.js` (copy of gp-songtools/toolsmenu `songspec/songspec.js`; never edit here)
 - `data/` — `dict.txt` (CMU pronunciations), `thesaurus.txt` (WordNet + Moby); generated, don't hand-edit

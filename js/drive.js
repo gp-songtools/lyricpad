@@ -5,7 +5,7 @@
 // The access token (Google gives one hour) is kept in localStorage, so reopening the page
 // within the hour doesn't need another sign-in; nothing is sent anywhere except Google.
 
-import { GOOGLE_CLIENT_ID } from "./config.js?v=b32c3ae3";
+import { GOOGLE_CLIENT_ID } from "./config.js?v=4a3ccd64";
 
 const SCOPE = "https://www.googleapis.com/auth/drive.file";
 const FOLDER_NAME = "Lyricpad";

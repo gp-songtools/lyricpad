@@ -15,6 +15,7 @@ All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, 
 
 ### Fixed
 
+- The browser tab uses a Lyricpad initial with the wordmark’s highlight.
 - Syllable counts could sit beside the wrong line after reloading a long song in a narrow window.
 
 ## 2026-11-18 — Song spec

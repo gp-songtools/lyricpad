@@ -4,7 +4,7 @@
 - `index.html`, `help.html`, `privacy.html`, `terms.html`, `css/style.css` (app), `css/pages.css` (help, changelog, privacy, terms) — pages and styles
 - `design-system/lyricpad/` — `MASTER.md` (tokens, contrast-checked colours, type floor 13px, components) and `PLAN.md`; follow them for UI changes
 - `CHANGELOG.md` — user-facing changes by date, newest first (Added / Changed / Fixed); `changelog.html` renders it in the browser; edit only the `.md`
-- `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `structure.js` (song-from-structure parser + prompt), `rhymemap.js` (rhyme colours in the editor), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret), `spec.js` (song spec: inputs and writing Lyrics/title, no DOM) + `specui.js` (its panel, "From the song spec" box, Copy › Add to song spec), `songspec.js` (copy of gp-songtools/toolsmenu `songspec/songspec.js`; never edit here)
+- `js/` — ES modules: `app.js` (editor, syllables, rhymes, theme, tabs, version check), `phonetics.js`, `thesaurus.js`, `suggest.js` (AI), `structure.js` (song-from-structure parser + prompt), `rhymemap.js` (rhyme colours in the editor), `drive.js` (Google Drive), `config.js` (OAuth client ID, not secret), `spec.js` (song spec: inputs and writing Lyrics/title, no DOM) + `specui.js` (its panel, "From the song spec" box, Copy › Add to song spec), `songspec.js` (copy of gp-songtools/toolsmenu `songspec/songspec.js`; never edit here), `songdrive.js` (copy of toolsmenu `songspec/songdrive.js`; never edit here; `check-copies.js` checks it), `drivehelpers.js` (pure Drive naming/query helpers, tested in `tests/drive.test.mjs`)
 - `data/` — `dict.txt` (CMU pronunciations), `thesaurus.txt` (WordNet + Moby); generated, don't hand-edit
 - `tools/` — `stamp-version.sh`, `build_dict.py`, `build_thesaurus.py`
 - `vendor/anthropic-sdk-1.3.0.js` — bundled Anthropic SDK; don't edit
@@ -41,7 +41,7 @@
 - Every `.html` page ends with the Cloudflare Web Analytics snippet (same token on all GP Song Tools); add it to any new page. Credits live on the suite page `gp-songtools.github.io/toolsmenu/privacy.html#credits` (repo `gp-songtools/toolsmenu`); update it and `README.md` Credits when adding a data source or library.
 
 ## Gotchas
-- Song spec (format: gp-songtools/toolsmenu `songspec/SPEC.md`): Lyricpad owns only Lyrics (saved exactly as written, [tags] kept) and `title`; it only reads Structure, Idea structure and Idea, and must work unchanged without them. Drive saves stay lyrics-only `.txt`. Update `songspec.js` only by copying it from toolsmenu (`node toolsmenu/songspec/check-copies.js`).
+- Song spec (format: gp-songtools/toolsmenu `songspec/SPEC.md`): Lyricpad owns only Lyrics (saved exactly as written, [tags] kept) and `title`; it only reads Structure, Idea structure and Idea, and must work unchanged without them. Drive saves stay lyrics-only `.txt`, in `GP Song Tools/<title>/lyrics/`; `drive.js` hands its own sign-in to `SongDrive.configure({auth})`, so the panel's Save to Drive needs no second sign-in. Update `songspec.js` only by copying it from toolsmenu (`node toolsmenu/songspec/check-copies.js`).
 - Imports carry `?v=<hash>`; never hand-edit stamps, rerun the script.
 - Google sign-in popup must open synchronously from a click: nothing awaited before `requestAccessToken`.
 - Google script is preloaded at page load (`prepareSignIn`) for that reason.

@@ -2,6 +2,20 @@
 
 All notable changes to Lyricpad, newest first. Lyricpad has no version numbers, so entries are grouped by date. The version shown in the page footer is a content hash, not a release number.
 
+## 2026-11-24 — Songs in GP Song Tools folders
+
+### Added
+
+- **Songs now save in `GP Song Tools / <title> / lyrics /`** on your Google Drive, in the same song folders the other GP Song Tools use, so one song's lyrics, audio, images and video sit together.
+- **Move old songs**: after you connect, Lyricpad offers once to move the songs from the old **Lyricpad** folder into their own song folders. Songs you leave behind appear in the Songs window under “In the old Lyricpad folder”, with a **Move old songs (N)** button. Moved songs keep their link, so the one you have open keeps saving.
+- **The Song spec panel has Save to Drive, Open from Drive… and Sign out of Drive**, using the same Google sign-in as Lyricpad's own Save, so there is no second sign-in. Signing out in either place signs you out of both.
+
+### Changed
+
+- **Save asks for a title** when a song has none yet, because the song's folder is named after it. Cancel and nothing is saved.
+- **Renaming a song renames its folder** too. If another folder in GP Song Tools already has that name, the folder keeps its name, only the file is renamed, and Lyricpad tells you. Files other tools saved in the folder stay where they are.
+- The Songs window lists songs from all your song folders, shows the folder name when it differs from the title, and marks the song you have open.
+
 ## 2026-11-20 — A new look
 
 ### Changed

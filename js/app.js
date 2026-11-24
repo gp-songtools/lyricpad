@@ -1,11 +1,11 @@
 // The "?v=" stamps make browsers fetch matching copies of every file after an update
 // (tools/stamp-version.sh sets them). Data files get the same stamp via VERSION.
-import { Lexicon, guessSyllables } from "./phonetics.js?v=89efc4ff";
-import { initSuggest } from "./suggest.js?v=89efc4ff";
-import { initThesaurus } from "./thesaurus.js?v=89efc4ff";
-import { initDrive } from "./drive.js?v=89efc4ff";
-import { findRhymes } from "./rhymemap.js?v=89efc4ff";
-import { initSpec } from "./specui.js?v=89efc4ff";
+import { Lexicon, guessSyllables } from "./phonetics.js?v=b62c520e";
+import { initSuggest } from "./suggest.js?v=b62c520e";
+import { initThesaurus } from "./thesaurus.js?v=b62c520e";
+import { initDrive } from "./drive.js?v=b62c520e";
+import { findRhymes } from "./rhymemap.js?v=b62c520e";
+import { initSpec } from "./specui.js?v=b62c520e";
 
 const VERSION = new URL(import.meta.url).search;
 
@@ -557,6 +557,13 @@ const drive = safeInit("Google Drive", () => initDrive({
     els.scroll.scrollTop = 0;
     renderEditor();
   },
+  // Fill the title box the way typing would (Save asks for a title when there is none).
+  setTitle(title) {
+    els.title.value = title;
+    els.title.dispatchEvent(new Event("input", { bubbles: true }));
+  },
+  // Drive signed in or out (here, or from the Song spec panel): the panel shows or hides Sign out of Drive.
+  authChanged: () => specUi?.panel.refresh(),
   focus: () => els.lyrics.focus(),
   download: downloadTxt,
   toast,

@@ -426,6 +426,13 @@ button.linkish:hover { background: none; color: var(--ink); }
 .song.current { background: var(--accent-soft); }
 .song.current .name { font-weight: 700; }
 .song .name { font-family: var(--font-lyric); font-size: 1.0625rem; min-width: 0; overflow-wrap: anywhere; }
+.song .folder { display: block; font-family: inherit; font-size: var(--fs-sm); color: var(--muted); font-weight: 400; }
+.old-songs { margin-top: .5rem; padding: .75rem .4rem 0; border-top: 1px solid var(--line); }
+.old-songs .move-old { margin-bottom: .6rem; }
+.old-songs .old-head { color: var(--ink); font-weight: 650; margin: 0; }
+.old-songs .small { margin: 0 0 .4rem; }
+.move-dialog { max-width: 420px; }
+.move-text { margin: 0; padding: .2rem 1rem .6rem; line-height: 1.5; }
 .song .when { font-size: var(--fs-sm); color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 .toast {

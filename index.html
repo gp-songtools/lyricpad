@@ -16,7 +16,7 @@
       if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=89efc4ff">
+  <link rel="stylesheet" href="css/style.css?v=b62c520e">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -218,7 +218,7 @@
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
     <a href="https://gp-songtools.github.io/toolsmenu/privacy.html#credits" target="_blank" rel="noopener">Credits</a>
-    <button type="button" id="version" class="ver" data-build="89efc4ff" data-date="2026-11-23" title="Click to check whether a newer version is available">Version 89efc4ff, 2026-11-23</button>
+    <button type="button" id="version" class="ver" data-build="b62c520e" data-date="2026-11-24" title="Click to check whether a newer version is available">Version b62c520e, 2026-11-24</button>
   </footer>
   <dialog id="songsDialog" class="songs-dialog" aria-labelledby="songsTitle">
     <div class="dlg-head">
@@ -240,8 +240,16 @@
     <input id="songFilter" type="search" placeholder="Filter songs" autocomplete="off" aria-label="Filter songs" hidden>
     <div id="songList" class="song-list"></div>
   </dialog>
+  <dialog id="moveDialog" class="songs-dialog move-dialog" aria-labelledby="moveTitle">
+    <div class="dlg-head"><h2 id="moveTitle">Move your old songs?</h2></div>
+    <p id="moveText" class="move-text"></p>
+    <div class="dlg-actions">
+      <button type="button" id="moveYes" class="primary">Move</button>
+      <button type="button" id="moveNo">Not now</button>
+    </div>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="js/app.js?v=89efc4ff"></script>
+  <script type="module" src="js/app.js?v=b62c520e"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2c5b0c69f74b496998f02d0e1f651bd5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

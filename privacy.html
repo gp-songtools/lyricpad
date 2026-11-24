@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
   <title>Lyricpad – Privacy Policy</title>
   <meta name="description" content="How Lyricpad handles your lyrics, settings and Google Drive files.">
-  <link rel="stylesheet" href="css/pages.css?v=89efc4ff">
+  <link rel="stylesheet" href="css/pages.css?v=b62c520e">
   <script>
     // Match the theme chosen in the app.
     (function () {
@@ -28,7 +28,7 @@
 <div class="page-wrap">
 <main id="main">
   <h1>Privacy Policy</h1>
-  <p class="meta">Last updated: November 18, 2026</p>
+  <p class="meta">Last updated: November 24, 2026</p>
 
   <p>Lyricpad is a lyric-writing tool that runs entirely in your web browser. It has no server and no database of its own. It collects only anonymous visit statistics (below), and it does not sell or share information about you. This page explains what happens to your data when you use it.</p>
 
@@ -37,10 +37,10 @@
   <p>If you use the <b>song spec</b> (shared by the GP Song Tools on gp-songtools.github.io), <b>Add to song spec</b> copies your lyrics and title into one shared copy of the song in the same browser storage, where the other GP Song Tools can read it. It is not sent anywhere by itself; Download saves it as a file on your device and New song empties it. Lyricpad also notes there which parts of the song spec your last “Write lyrics” used.</p>
 
   <h2>Google Drive (optional)</h2>
-  <p>If you choose to save songs to Google Drive, Lyricpad asks Google for permission to use your Drive with the <code>drive.file</code> scope. This lets Lyricpad create a “Lyricpad” folder and see, create and edit <strong>only the files it creates there</strong>. It cannot see any other files in your Drive.</p>
+  <p>If you choose to save songs to Google Drive, Lyricpad asks Google for permission to use your Drive with the <code>drive.file</code> scope. This lets Lyricpad create folders and files and see and edit <strong>only the ones the GP Song Tools create</strong>. It cannot see any other files in your Drive. Each song is saved as a text file in <code>GP Song Tools / &lt;song title&gt; / lyrics</code>, a song folder shared with the other GP Song Tools. If you agree, Lyricpad moves songs from the old “Lyricpad” folder into those folders and then puts the empty old folder in your Drive’s trash. The Song spec panel’s Save to Drive and Open from Drive use the same sign-in.</p>
   <ul>
     <li>Songs are saved as text files in your own Google Drive, under your Google account. The developers of Lyricpad cannot see them.</li>
-    <li>The sign-in token Google gives Lyricpad (valid for one hour) and your Google account's email address are kept only in your browser. The token is used only to read and write those song files; the email address is used only to tell Google which account to renew access for. Neither is ever sent anywhere except to Google. Disconnecting (below) removes both from your browser.</li>
+    <li>The sign-in token Google gives Lyricpad (valid for one hour) and your Google account's email address are kept only in your browser. The token is used only to read and write those song files; the email address is used only to tell Google which account to renew access for. Neither is ever sent anywhere except to Google. Lyricpad also remembers in your browser which song is open on Drive, the Drive ids of its song and lyrics folders, and that it has already offered to move your old songs. Disconnecting (below) removes the token and email.</li>
     <li>You can disconnect at any time from the Songs window in Lyricpad, or remove Lyricpad's access in your <a href="https://myaccount.google.com/connections">Google Account settings</a>. Your saved songs stay in your Drive until you delete them.</li>
   </ul>
   <p>Lyricpad's use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements. Data obtained from Google is used only to provide the save-and-open feature you asked for; it is not transferred to anyone else, used for advertising, or used to train AI models.</p>
